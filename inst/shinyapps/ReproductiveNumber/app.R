@@ -1,8 +1,8 @@
 ############################################################
 #This is the Shiny file for the Reproductive Number App
-#written by Andreas Handel and Sina Solaimanpour 
+#written by Andreas Handel, with contributions from others 
 #maintained by Andreas Handel (ahandel@uga.edu)
-#last updated 10/13/2016
+#last updated 7/13/2017
 ############################################################
 
 #the server-side function with the main functionality
@@ -17,16 +17,20 @@ refresh <- function(input, output){
     # Read all the input values from the UI
     S0 = isolate(input$S0);
     I0 = isolate(input$I0);
-    f = isolate(input$f);
     tmax = isolate(input$tmax);
-    gamma = isolate(input$gamma);
-    beta = isolate(input$beta);
-    lambda = isolate(input$lambda);
-    n = isolate(input$n);
+
+    w = isolate(input$w);
+    b = isolate(input$b);
+    g = isolate(input$g);
+    
+    f = isolate(input$f);
     e = isolate(input$e);
     
+    m = isolate(input$m);
+    n = isolate(input$n);
+    
     # Call the ODE solver with the given parameters
-    result <- simulate_reproductivenumber(S0 = S0, I0 = I0, f = f, e=e, tmax = tmax, gamma = gamma, beta = beta, lambda = lambda, n = n)
+    result <- simulate_reproductivenumber(S0 = S0, I0 = I0, f = f, e=e, tmax = tmax, g = g, b = b, m = m, n = n, w = w)
 
     return(list(result)) #this is returned as the res variable
   })
@@ -62,9 +66,8 @@ server <- function(input, output, session) {
 
 #This is the UI part of the shiny App
 ui <- fluidPage(
-  includeCSS("../shinystyle.css"),
+  includeCSS("../styles/dsaide.css"), #styling for app
   #add header and title
-  tags$head( tags$script(src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML", type = 'text/javascript') ),
   div( includeHTML("www/header.html"), align = "center"),
   #specify name of App below, will show up in title
   h1('Reproductive Number App', align = "center", style = "background-color:#123c66; color:#fff"),
@@ -92,42 +95,42 @@ ui <- fluidPage(
            h2('Simulation Settings'),
            fluidRow(
              column(6,
-                    sliderInput("S0", "initial number of susceptible hosts", min = 1000, max = 5000, value = 1000, step = 500)
+                    numericInput("S0", "initial number of susceptible hosts (S0)", min = 1000, max = 5000, value = 1000, step = 500)
              ),
              column(6,
-                    sliderInput("I0", "initial number of infected hosts", min = 0, max = 100, value = 0, step = 1)
+                    numericInput("I0", "initial number of infected hosts (I0)", min = 0, max = 100, value = 0, step = 1)
              )
            ), #close fluidRow structure for input
            fluidRow(
              column(6,
-                    sliderInput("tmax", "Maximum simulation time (months)", min = 1, max = 1200, value = 100, step = 1)
+                    numericInput("tmax", "Maximum simulation time (tmax)", min = 1, max = 12000, value = 100)
              ),
              column(6,
-                    sliderInput("w", "Rate of immunity loss (w, 1/months)", min = 0, max = 10, value = 0, step = 0.01)
+                    numericInput("w", "Rate of immunity loss (w)", min = 0, max = 10, value = 0, step = 0.01)
              )
            ), #close fluidRow structure for input
            fluidRow(
              column(6,
-                    sliderInput("beta", "Rate of transmission (beta, 1/months)", min = 0, max = 0.1, value = 0, step = 0.001 , sep ='')
+                    numericInput("b", "Rate of transmission (b)", min = 0, max = 0.1, value = 0, step = 0.001  )
              ),
              column(6,
-                    sliderInput("gamma", "Rate at which a host leaves the infectious compartment (gamma, 1/months)", min = 0, max = 25, value = 10, step = 0.25, sep ='')
+                    numericInput("g", "Rate at which a host leaves the infectious compartment (g)", min = 0, max = 25, value = 10, step = 0.25 )
              )
            ), #close fluidRow structure for input
            fluidRow(
              column(6,
-                    sliderInput("f", "Fraction vaccinated prior to outbreak", min = 0, max = 1, value = 0, step = 0.05, sep ='')
+                    numericInput("f", "Fraction vaccinated prior to outbreak (f)", min = 0, max = 1, value = 0, step = 0.05 )
              ),
              column(6,
-                    sliderInput("e", "Efficacy of vaccine", min = 0, max = 1, value = 0, step = 0.05, sep ='')
+                    numericInput("e", "Efficacy of vaccine (e)", min = 0, max = 1, value = 0, step = 0.05 )
              )
            ), #close fluidRow structure for input
            fluidRow(
              column(6,
-                    sliderInput("lambda", "Monthly rate of new births (lambda)", min = 0, max = 100, value = 0, step = 1)
+                    numericInput("m", "Rate of new births (m)", min = 0, max = 100, value = 0, step = 1)
              ),
              column(6,
-                    sliderInput("n", "Natural death rate (n, 1/months)", min = 0, max = 0.02, value = 0, step = 0.0005, sep ='')
+                    numericInput("n", "Natural death rate (n)", min = 0, max = 0.02, value = 0, step = 0.0005 )
              )
            ) #close fluidRow structure for input
            
@@ -139,7 +142,7 @@ ui <- fluidPage(
            #################################
            #Start with results on top
            h2('Simulation Results'),
-           plotOutput(outputId = "plot", height = "500px"),
+           plotOutput(outputId = "plot", width = "auto"),
            # PLaceholder for results of type text
            htmlOutput(outputId = "text"),
            #Placeholder for any possible warning or error messages (this will be shown in red)

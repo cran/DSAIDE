@@ -1,4 +1,9 @@
+############################################################
 #This is the Shiny file for the Stochastic Dynamics App
+#written by Andreas Handel, with contributions from others 
+#maintained by Andreas Handel (ahandel@uga.edu)
+#last updated 7/13/2017
+############################################################
 
 
 #the main function with all the functionality for the server
@@ -21,7 +26,7 @@ refresh <- function(input, output){
 
     w = isolate(input$w);
 
-    lambda = isolate(input$lambda)
+    m = isolate(input$m)
     n = isolate(input$n);
     nreps = isolate(input$nreps)
 
@@ -31,7 +36,7 @@ refresh <- function(input, output){
     result <- list()
     for (nn in 1:nreps)
     {
-     result[[nn]] <- simulate_stochastic(S0 = S0, I0 = I0, tmax = tmax, bP = bP, bI = bI, gP = gP, gI = gI, w = w, lambda = lambda, n = n)
+     result[[nn]] <- simulate_stochastic(S0 = S0, I0 = I0, tmax = tmax, bP = bP, bI = bI, gP = gP, gI = gI, w = w, m = m, n = n)
     }
     
     return(result)
@@ -67,10 +72,10 @@ server <- function(input, output, session) {
 
 #This is the UI for the Stochastic Dynamics App
 ui <- fluidPage(
-  includeCSS("../shinystyle.css"),
+  includeCSS("../styles/dsaide.css"),
   
   #add header and title
-  tags$head( tags$script(src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML", type = 'text/javascript') ),
+   
   div( includeHTML("www/header.html"), align = "center"),
   h1('Stochastic Dynamics App', align = "center", style = "background-color:#123c66; color:#fff"),
   
@@ -95,47 +100,46 @@ ui <- fluidPage(
            #################################
            # Inputs section
            h2('Simulation Settings'),
-           p('All parameters are assumed to be in units of (inverse) months'),
            fluidRow(
              column(4,
-                    sliderInput("S0", "initial number of susceptible hosts", min = 100, max = 3000, value = 1000, step = 50)
+                    numericInput("S0", "initial number of susceptible hosts (S0)", min = 100, max = 3000, value = 1000, step = 50)
              ),
              column(4,
-                    sliderInput("I0", "initial number of symptomatic hosts", min = 0, max = 500, value = 1, step = 1)
+                    numericInput("I0", "initial number of symptomatic hosts (I0)", min = 0, max = 500, value = 1, step = 1)
              ),
              column(4,
-                    sliderInput("tmax", "Maximum simulation time (months)", min = 1, max = 1200, value = 100, step = 1)
+                    numericInput("tmax", "Maximum simulation time (tmax)", min = 1, max = 1200, value = 100, step = 1)
              )
            ), #close fluidRow structure for input
            fluidRow(
              column(4,
-                    sliderInput("bP", "Rate of transmission of presymptomatic hosts", min = 0, max = 0.02, value = 0, step = 0.0001 , sep ='')
+                    numericInput("bP", "Rate of transmission of presymptomatic hosts (bP)", min = 0, max = 0.02, value = 0, step = 0.0001  )
              ),
              column(4,
-                    sliderInput("bI", "Rate of transmission of symptomatic hosts", min = 0, max = 0.02, value = 0.01, step = 0.0001 , sep ='')
+                    numericInput("bI", "Rate of transmission of symptomatic hosts (bI)", min = 0, max = 0.02, value = 0.01, step = 0.0001  )
              ),
              column(4,
-                    sliderInput("w", "Rate of immunity loss", min = 0, max = 0.5, value = 0.0, step = 0.01, sep ='')
+                    numericInput("w", "Rate of immunity loss (w)", min = 0, max = 0.5, value = 0.0, step = 0.01 )
              )
            ), #close fluidRow structure for input
            
            fluidRow(
              column(6,
-                    sliderInput("gP", "Rate at which presymptomatic hosts leave compartment", min = 0, max = 5, value = 0.5, step = 0.1)
+                    numericInput("gP", "Rate at which presymptomatic hosts leave compartment (gP)", min = 0, max = 5, value = 0.5, step = 0.1)
              ),
              column(6,
-                    sliderInput("gI", "Rate at which symptomatic hosts leave compartment", min = 0, max = 5, value = 0.5, step = 0.1)
+                    numericInput("gI", "Rate at which symptomatic hosts leave compartment (gI)", min = 0, max = 5, value = 0.5, step = 0.1)
              )
             ), #close fluidRow structure for input
            fluidRow(
              column(4,
-                    sliderInput("lambda", "Rate of new births", min = 0, max = 10000, value = 0, step = 100)
+                    numericInput("m", "Rate of new births (m)", min = 0, max = 10000, value = 0, step = 100)
              ),
              column(4,
-                    sliderInput("n", "Natural death rate", min = 0, max = 1, value = 0, step = 0.1)
+                    numericInput("n", "Natural death rate (n)", min = 0, max = 1, value = 0, step = 0.1)
              ),          
              column(4,
-                         sliderInput("nreps", "Number of simulations", min = 1, max = 50, value = 1, step = 1)
+                         numericInput("nreps", "Number of simulations", min = 1, max = 50, value = 1, step = 1)
               )
             ) #close fluidRow structure for input
            

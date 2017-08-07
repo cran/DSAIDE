@@ -4,14 +4,14 @@ output:
   html_document:
     theme: null
     highlight: null
-    css: ../styles/handelshiny.css
+    css: ../styles/dsaide.css
     fig_caption: true
     mathjax: default 
     keep_md: false
     includes:
       #in_header: in_header.txt
-      before_body: ../styles/before_shiny_body.txt
-      after_body: ../styles/after_shiny_body.txt 
+      before_body: ../styles/dsaide_before_body.txt
+      after_body: ../styles/dsaide_after_body.txt 
 bibliography: ../media/references.bib
 ---
 
@@ -36,12 +36,12 @@ The processes being modeled are:
 
 * Susceptible individuals can become infected by two types of direct transmission from infected hosts, further described below.
 * Infected hosts recover after some time (specified by the rate _g_). 
-* Recovered individuals are initially immune to reinfection. They can loose their immunity at rate _w_ and return back to the susceptible compartment. 
-* New susceptibles enter (are born) at a fixed rate _b_. From each compartment, hosts "leave" after some time (i.e. they die) at rate _n_. The inverse of this rate is the average lifespan of a host. 
+* Recovered individuals are initially immune to reinfection. They can lose their immunity at rate _w_ and return to the susceptible compartment. 
+* New susceptibles enter (are born) at a rate _m_. From each compartment, hosts "leave" after some time (i.e. they die) at rate _n_. The inverse of this rate is the average lifespan of a host. 
 
 
 
-The force of infection, $\lambda$, depends on the transmission model. For density-dependent transmission, it is given by $\lambda = b_d I / A$, where _A_ is the area of the scenario under consideration (e.g. a city). For frequency-dependent transmission, we have $\lambda = b_f I / N$, where _N_ is the size of the population, _N=S+I+R_. 
+The force of infection, denoted by _f_ here, depends on the transmission model. For density-dependent transmission, it is given by _f = b~d~ I / A_, where _A_ is the area of the scenario under consideration (e.g. a city). For frequency-dependent transmission, we have _f = b~f~ I / N_, where _N_ is the size of the population, _N=S+I+R_. 
 
 
 
@@ -51,56 +51,52 @@ The flow diagram and the set of ordinary differential equations (ODE) which are 
 ![Flow diagram for this model.](../media/directtransmissionmodel.png)
 
 
-$$\dot S =b - \lambda S  + wR - nS$$ 
-$$\dot I = \lambda S - g I -nI$$ 
+$$\dot S =m - f S  + wR - nS$$ 
+$$\dot I = f S - g I -nI$$ 
 $$\dot R = g I - wR - nR$$
 
-with $\lambda = b_d I / A$ for density-dependent transmission and $\lambda = b_f I / N$ for frequency-dependent transmission.
+with _f = b~d~ I / A_ for density-dependent transmission and _f = b~f~ I / N_ for frequency-dependent transmission.
 
 
 ###Model Comments
-Note that quite often, we assume that the area is constant and do not include it in the model or even talk about it. Often, the population size is also assumed to be constant. In that case, the 2 types of transmission models behave the same. But as soon as area or population size change, the model results differ. Which is what you can explore with this simulation.
+Note that quite often, we assume that the area is constant and do not include it in the model or even talk about it. Often, the population size is also assumed to be constant. In that case, the 2 types of transmission models behave the same. But as soon as area or population size change, the model results differ. You can explore the effect of this relationship using this simulation.
 
 ##What to do {#shinytab3}
 
-_A general note: Some of the tasks below are fairly open ended. You shouldn't go through the tasks like a check-list. Instead, explore these simulations, play with them, query them. As you do, loop through iterations of formulating your expectations for a specific scenario/task, running the model and observing results, and if results don't agree with your expectations, figure out why. Essentially, **"do science/research"**._ 
+
+**The tasks below are described in a way that assumes that everything is in units of MONTHS (rate parameters, therefore, have units of inverse days). If any quantity is not given in those units, you need to convert it first (e.g. if it says a year, you need to convert it to 12 months).**
 
 
 ###Task 1: 
 * Set the model parameters such that it corresponds to the following setting: 
-    * A population size of 1000, 1 initially infected host, simulation duration approximately 10 years.
-    * Consider density-dependent transmission, with a transmission rate of b~d~ = 0.005, area of size 2.
+    * A population size, _P~0~_, of 1000, 1 initially infected host, simulation duration, _tmax_ approximately 10 years.
+    * Consider density-dependent transmission, with a transmission rate of _b~d~_ = 0.005, and an area of size 2.
     * Assume that the duration of the infectious period is 15 days long (and that there are 30 days in a month). 
     * Turn off births, deaths and waning immunity for now.
 * With parameters set to correspond to the scenario just described, run the simulation.
 * Record the number and fraction of susceptible/infected/recovered remaining at the end of the outbreak.    
 
 ###Task 2: 
-* Now switch to frequency-dependent transmission, set b~f~=2.5. Keep everything else as before.
+* Now switch to frequency-dependent transmission, set _b~f~_=2.5. Keep everything else as before.
 * Think about your expectations, run the simulation and compare your expectations with the results.
-* Anything surprising happening? Do you understand why you are seeing what you see?
+* Anything surprising happening? Do you understand why you see what you see?
 
 
 ###Task 3: 
-* Let's assume we are now in a location with twice the number of people as before, living in roughly the same area.
+* Let's assume we are now in a location with twice the number of people as before (_P~0~_ = 2000) , living in roughly the same area.
 * Implement that in the simulation by changing population size, keep all other settings as above. 
 * What do you expect to see for the frequency and density dependent scenarios? Run simulations and check. Pay attention to both the numbers and fractions of S/I/R individuals at the end of the outbreak.  
 
 ###Task 4: 
-* If you double the population size as you just did, how do you need to adjust the area to obtain the same sized outbreak (in terms of fraction of people getting infected/remaining susceptible) for density-dependent transmission?
-* Try with the simulation if your expectation is correct.
+* If you double the population size as you just did, how do you need to adjust the area to obtain the same sized outbreak (regarding the fraction of people getting infected/remaining susceptible) for density-dependent transmission?
+* Try with the simulation and see if your expectation is correct.
 
 ###Task 5: 
 * Keep exploring by trying different parameters and transmission settings and see how they influence results.
 * You can also go beyond a single outbreak and turn on births/deaths (which can impact population size) or waning immunity.
-* As you continue your exploration, think about potential real infectious diseases that might be approximated by either one of the transmission types, and what approximate choices for the model parameters would describe those IDs.
+* As you continue your exploration, think about real infectious diseases that might be approximated by either one of the transmission types, and what approximate choices for the model parameters would describe those IDs.
 
 
-##Answers 
-This section does not have the shinytab label and is therefore ignored and not included in the app. One could provide the answers here. Note that if this file is supplied with the package, the answers are in principle available, so most users might not know where/how to look.
-
-###Answer 1: 
-Answer to task 1.
 
 
 ##Further Information {#shinytab4}

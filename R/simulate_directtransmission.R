@@ -8,12 +8,12 @@ directtransmissioneq <- function(t, y, parms)
       
       #force of infection for different scenarios: 1 = density-dependent, 2 = frequency-dependent
       N=S+I+R
-      if (scenario==1) { lambda=bd*I/A;}
-      if (scenario==2) { lambda=bf*I/N;}
+      if (scenario==1) { f=bd*I/A;}
+      if (scenario==2) { f=bf*I/N;}
 
       #the ordinary differential equations - includes birth-death and waning immunity
-      dS = b - n*S - lambda*S + w*R; #susceptibles 
-      dI = lambda*S - g*I - n*I; #infected/infectious
+      dS = m - n*S - f*S + w*R; #susceptibles 
+      dI = f*S - g*I - n*I; #infected/infectious
       dR = g*I -n*R - w*R; #recovered
 
       list(c(dS, dI, dR))
@@ -29,14 +29,14 @@ directtransmissioneq <- function(t, y, parms)
 #' @description  This model allows for the simulation of different direct transmission modes
 #' 
 #'
-#' @param PopSize initial population size
+#' @param S0 initial number of susceptibles
 #' @param I0 initial number of infected hosts
 #' @param tmax maximum simulation time, units of months
 #' @param bd rate of transmission for density-dependent transmission
 #' @param bf rate of transmission for frequency-dependent transmission
 #' @param scenario choice between density dependent (=1) and frequency dependent (=2) transmission scenarios
 #' @param A the size of the area in which the hosts are assumed to reside/interact
-#' @param b the rate of births 
+#' @param m the rate of births 
 #' @param n the rate of natural deaths
 #' @param g the rate at which infected hosts recover
 #' @param w the rate of waning immunity
@@ -54,7 +54,7 @@ directtransmissioneq <- function(t, y, parms)
 #'   # To run the simulation with default parameters just call this function
 #'   result <- simulate_directtransmission()
 #'   # To choose parameter values other than the standard one, specify them e.g. like such
-#'   result <- simulate_directtransmission(PopSize = 100,   tmax = 100, A=10)
+#'   result <- simulate_directtransmission(S0 = 100, tmax = 100, A=10)
 #'   # You should then use the simulation result returned from the function, e.g. like this:
 #'   plot(result[,1],result[,2],xlab='Time',ylab='Number Susceptible',type='l')
 #' @seealso The UI of the shiny app 'DirectTransmission', which is part of this package, contains more details on the model
@@ -65,17 +65,17 @@ directtransmissioneq <- function(t, y, parms)
 
 
 
-simulate_directtransmission <- function(PopSize = 1e3, I0 = 1, tmax = 120, scenario = 1, bd = 0.01, bf = 0, A = 1, b = 0, n = 0, g = 0.1, w = 0)
+simulate_directtransmission <- function(S0 = 1e3, I0 = 1, tmax = 120, scenario = 1, bd = 0.01, bf = 0, A = 1, m = 0, n = 0, g = 0.1, w = 0)
 {
   ############################################################
-  Y0 = c(S = PopSize-I0, I = I0, R = 0);  #combine initial conditions into a vector
+  Y0 = c(S = S0, I = I0, R = 0);  #combine initial conditions into a vector
   dt = min(0.1, tmax / 1000); #time step for which to get results back
   timevec = seq(0, tmax, dt); #vector of times for which solution is returned (not that internal timestep of the integrator is different)
   
   
   ############################################################
   #vector of parameters which is sent to the ODE function  
-  pars=c(tmax = tmax, bd = bd, bf = bf, A = A, b = b, n = n, g = g, w = w, scenario = scenario); 
+  pars=c(tmax = tmax, bd = bd, bf = bf, A = A, m = m, n = n, g = g, w = w, scenario = scenario); 
 
   #this line runs the simulation, i.e. integrates the differential equations describing the infection process
   #the result is saved in the odeoutput matrix, with the 1st column the time, the 2nd, 3rd, 4th column the variables S, I, R

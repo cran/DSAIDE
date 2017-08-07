@@ -1,8 +1,8 @@
 ############################################################
 #This is the Shiny file for the ID Dynamics Introduction App
-#written by Andreas Handel and Sina  
+#written by Andreas Handel, with contributions from others 
 #maintained by Andreas Handel (ahandel@uga.edu)
-#last updated 10/13/2016
+#last updated 7/13/2017
 ############################################################
 
 #the server-side function with the main functionality
@@ -56,9 +56,10 @@ server <- function(input, output, session) {
 
 #This is the UI part of the shiny App
 ui <- fluidPage(
-  includeCSS("../shinystyle.css"),
+  includeCSS("../styles/dsaide.css"),
   #add header and title
-  tags$head( tags$script(src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML", type = 'text/javascript') ),
+  withMathJax(),
+  # 
   tags$head(tags$style(".myrow{vertical-align: bottom;}")),
   div( includeHTML("www/header.html"), align = "center"),
   #specify name of App below, will show up in title
@@ -87,23 +88,23 @@ ui <- fluidPage(
            h2('Simulation Settings'),
            fluidRow( class = 'myrow',
              column(4,
-                    sliderInput("S0", "Initial number of susceptible hosts", min = 500, max = 5000, value = 1000, step = 500)
+                    numericInput("S0", "Initial number of susceptible hosts (S0)", min = 500, max = 5000, value = 1000, step = 500)
              ),
              column(4,
-                    sliderInput("I0", "Initial number of infected hosts", min = 0, max = 100, value = 0, step = 1)
+                    numericInput("I0", "Initial number of infected hosts (I0)", min = 0, max = 100, value = 0, step = 1)
              ),
              column(4,
-                    sliderInput("tmax", "Maximum simulation time", min = 10, max = 1000, value = 300, step = 10)
+                    numericInput("tmax", "Maximum simulation time (tmax)", min = 10, max = 1000, value = 300, step = 10)
              ),
              align = "center"
            ), #close fluidRow structure for input
            
            fluidRow(class = 'myrow',
              column(6,
-                    sliderInput("b", "Rate of transmission (beta)", min = 0, max = 0.01, value = 0, step = 0.0001, sep ='')
+                    numericInput("b", "Rate of transmission (b)", min = 0, max = 0.01, value = 0, step = 0.0001 )
              ),
              column(6,
-                    sliderInput("g", "Rate at which a host leaves the infectious compartment (gamma)", min = 0, max = 2, value = 0.5, step = 0.1)
+                    numericInput("g", "Rate at which a host leaves the infectious compartment (g)", min = 0, max = 2, value = 0.5, step = 0.1)
              ),
              align = "center" 
            ) #close fluidRow structure for input

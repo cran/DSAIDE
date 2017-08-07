@@ -12,11 +12,11 @@ idcharacteristicsode <- function(t, y, parms)
         as.list(c(y,parms)), #lets us access variables and parameters stored in y and pars by name
         {
             #the ordinary differential equations
-  	        dS =  - S * (bP * P + bA * A + bI * I) + w * R; #susceptibles
-            dP =    S * (bP * P + bA * A + bI * I) - gP * P; #infected, pre-symptomatic
+  	        dS =  - S * (bP * P + bA * A + bI * I)  #susceptibles
+            dP =    S * (bP * P + bA * A + bI * I) - gP * P #infected, pre-symptomatic
             dA =  f*gP*P - gA * A #infected, asymptomatic
             dI =  (1-f)*gP*P -  gI*I #infected, symptomatic
-            dR =  (1-d)*gI*I + gA * A - w * R #recovered, immune
+            dR =  (1-d)*gI*I + gA * A  #recovered, immune
             dD = d*gI*I #dead
 
             list(c(dS, dP, dA, dI, dR, dD))
@@ -32,11 +32,8 @@ idcharacteristicsode <- function(t, y, parms)
 #' Infected and Asymptomatic (A), Infected and Symptomatic (I),
 #' Recovered and Immune (R) and Dead (D)
 #'
-#' @param PopSize specifies the initial number of individuals
-#' (Suceptibles + Infected & Pre-symptomatic).
-#' All other compartments start at 0.
-#' @param P0 initial number of infected, pre-symptomatic hosts,
-#'
+#' @param S0 specifies the initial number of susceptible hosts
+#' @param P0 initial number of infected, pre-symptomatic hosts
 #' @param bP level/rate of infectiousness for hosts in the P compartment
 #' @param bA level/rate of infectiousness for hosts in the A compartment
 #' @param bI level/rate of infectiousness for hosts in the I compartment
@@ -46,7 +43,6 @@ idcharacteristicsode <- function(t, y, parms)
 #' @param gI rate at which a person leaves the A compartment
 #' @param f fraction of pre-symptomatic individuals that have an asymptomatic infection
 #' @param d fraction of symptomatic infected hosts that die due to disease
-#' @param w rate at which recovered persons loose immunity and return to susceptible state
 #' @param tmax maximum simulation time, units depend on choice of units for your
 #'   parameters
 #' @return The function returns the output from the odesolver as a matrix,
@@ -61,7 +57,7 @@ idcharacteristicsode <- function(t, y, parms)
 #' # To run the simulation with default parameters just call this function
 #' result <- simulate_idcharacteristics()
 #' # To choose parameter values other than the standard one, specify them e.g. like such
-#' result <- simulate_idcharacteristics(PopSize = 2000, P0 = 10, tmax = 100, f = 0.1, d = 0.2)
+#' result <- simulate_idcharacteristics(S0 = 2000, P0 = 10, tmax = 100, f = 0.1, d = 0.2)
 #' # You should then use the simulation result returned from the function, e.g. like this:
 #' plot(result[,1],result[,2],xlab='Time',ylab='Number Susceptible',type='l')
 #' @references See e.g. Keeling and Rohani 2008 for SIR models and the
@@ -69,15 +65,14 @@ idcharacteristicsode <- function(t, y, parms)
 #' @author Andreas Handel
 #' @export
 
-simulate_idcharacteristics <- function(PopSize = 1000, P0 = 1, tmax = 300, bP = 0, bA = 0, bI = 1/1000, gP = 0.5, gA = 0.5, gI = 0.5, f = 0, d = 0, w = 0)
+simulate_idcharacteristics <- function(S0 = 1000, P0 = 1, tmax = 300, bP = 0, bA = 0, bI = 1/1000, gP = 0.5, gA = 0.5, gI = 0.5, f = 0, d = 0)
 {
-  S0 = PopSize - P0; #initial number of uninfected hosts
   Y0 = c(S = S0, P = P0, A = 0, I = 0, R = 0, D = 0);  #combine initial conditions into a vector
   dt = min(0.1, tmax / 1000); #time step for which to get results back
   timevec = seq(0, tmax, dt); #vector of times for which solution is returned (not that internal timestep of the integrator is different)
 
   #combining parameters into a parameter vector
-  pars = c(bP = bP, bA = bA, bI = bI, gP = gP , gA = gA, gI = gI, f = f, d = d, w = w);
+  pars = c(bP = bP, bA = bA, bI = bI, gP = gP , gA = gA, gI = gI, f = f, d = d);
 
   #this line runs the simulation, i.e. integrates the differential equations describing the infection process
   #the result is saved in the odeoutput matrix, with the 1st column the time, the 2nd, 3rd, 4th column the variables S, I, R

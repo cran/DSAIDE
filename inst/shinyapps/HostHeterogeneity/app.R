@@ -1,8 +1,8 @@
 ############################################################
 #This is the Shiny file for the Host Heterogeneity App
-#written by Andreas Handel and Sina Solaimanpour 
+#written by Andreas Handel, with contributions from others 
 #maintained by Andreas Handel (ahandel@uga.edu)
-#last updated 10/13/2016
+#last updated 7/13/2017
 ############################################################
 
 #the server-side function with the main functionality
@@ -69,9 +69,9 @@ server <- function(input, output, session) {
 
 #This is the UI part of the shiny App
 ui <- fluidPage(
-  includeCSS("../shinystyle.css"),
+  includeCSS("../styles/dsaide.css"),
   #add header and title
-  tags$head( tags$script(src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML", type = 'text/javascript') ),
+   
   div( includeHTML("www/header.html"), align = "center"),
   #specify name of App below, will show up in title
   h1('Host Heterogeneity App', align = "center", style = "background-color:#123c66; color:#fff"),
@@ -97,58 +97,57 @@ ui <- fluidPage(
            #################################
            # Inputs section
            h2('Simulation Settings'),
-           p('All parameters are assumed to be in units of (inverse) months'),
            fluidRow(
              column(6,
-                    sliderInput("S10", "initial number of susceptible type 1 hosts", min = 100, max = 5000, value = 1000, step = 100)
+                    numericInput("S10", "initial number of susceptible type 1 hosts (S10)", min = 100, max = 5000, value = 1000, step = 100)
              ),
              column(6,
-                    sliderInput("I10", "initial number of infected type 1  hosts", min = 0, max = 100, value = 0, step = 1)
+                    numericInput("I10", "initial number of infected type 1  hosts (I10)", min = 0, max = 100, value = 0, step = 1)
              )
            ), #close fluidRow structure for input
            fluidRow(
              column(6,
-                    sliderInput("S20", "initial  number of susceptible type 2 hosts", min = 0, max = 5000, value = 0, step = 100)
+                    numericInput("S20", "initial  number of susceptible type 2 hosts (S20)", min = 0, max = 5000, value = 0, step = 100)
              ),
              column(6,
-                    sliderInput("I20", "initial  number of infected type 2 hosts", min = 0, max = 100, value = 0, step = 1)
+                    numericInput("I20", "initial  number of infected type 2 hosts (I20)", min = 0, max = 100, value = 0, step = 1)
              )
            ), #close fluidRow structure for input
            fluidRow(
              column(6,
-                    sliderInput("b11", "Rate of transmission between type 1  hosts", min = 0, max = 0.01, value = 0, step = 0.0001 , sep ='')
+                    numericInput("b11", "Rate of transmission between type 1 hosts (b11)", min = 0, max = 0.01, value = 0, step = 0.0001  )
              ),
              column(6,
-                    sliderInput("b22", "Rate of transmission between type 2 hosts", min = 0, max = 0.01, value = 0, step = 0.0001 , sep ='')
+                    numericInput("b22", "Rate of transmission between type 2 hosts (b22)", min = 0, max = 0.01, value = 0, step = 0.0001  )
              )
            ), #close fluidRow structure for input
            fluidRow(
              column(6,
-                    sliderInput("b12", "Rate of transmission from type 2 to type 1", min = 0, max = 0.01, value = 0, step = 0.0001 , sep ='')
+                    numericInput("b12", "Rate of transmission from type 2 to type 1 (b12)", min = 0, max = 0.01, value = 0, step = 0.0001  )
              ),
              column(6,
-                    sliderInput("b21", "Rate of transmission from type 1 to type 2", min = 0, max = 0.01, value = 0, step = 0.0001 , sep ='')
+                    numericInput("b21", "Rate of transmission from type 1 to type 2 (b21)", min = 0, max = 0.01, value = 0, step = 0.0001  )
              )
            ), #close fluidRow structure for input
            fluidRow(
              column(6,
-                    sliderInput("g1", "Rate at which infected type 1 hosts leave compartment", min = 0, max = 5, value = 0.5, step = 0.1)
+                    numericInput("g1", "Rate at which infected type 1 hosts leave compartment (g1)", min = 0, max = 5, value = 0.5, step = 0.1)
              ),
              column(6,
-                    sliderInput("g2", "Rate at which infected type 2 hosts leave compartment", min = 0, max = 5, value = 0.5, step = 0.1)
+                    numericInput("g2", "Rate at which infected type 2 hosts leave compartment (g2)", min = 0, max = 5, value = 0.5, step = 0.1)
              )
            ), #close fluidRow structure for input
            
            
            fluidRow(
              column(4,
-                    sliderInput("w1", "Rate of waning immunity of type 1", min = 0, max = 5, value = 0, step = 0.05)
+                    numericInput("w1", "Rate of waning immunity of type 1 (w1)", min = 0, max = 5, value = 0, step = 0.05)
              ),
              column(4,
-                    sliderInput("w2", "Rate of waning immunity of type 2", min = 0, max = 5, value = 0, step = 0.05)
+                    numericInput("w2", "Rate of waning immunity of type 2 (w2)", min = 0, max = 5, value = 0, step = 0.05)
              ),
              column(4,
-                    sliderInput("tmax", "Maximum simulation time (months)", min = 1, max = 1200, value = 100, step = 1)
+                    numericInput("tmax", "Maximum simulation time (tmax)", min = 1, max = 1200, value = 100, step = 1)
              )
              
            ) #close fluidRow structure for input

@@ -1,8 +1,8 @@
 ############################################################
 #This is the Shiny file for the ID Patterns App
-#written by Andreas Handel and Sina Solaimanpour  
+#written by Andreas Handel, with contributions from others 
 #maintained by Andreas Handel (ahandel@uga.edu)
-#last updated 10/13/2016
+#last updated 7/13/2017
 ############################################################
 
 #the server-side function with the main functionality
@@ -16,8 +16,9 @@ refresh <- function(input, output){
     
     
     # Read all the input values from the UI
-    PopSize = isolate(input$PopSize);
+    S0 = isolate(input$S0);
     P0 = isolate(input$P0);
+    timeunit = as.numeric(isolate(input$timeunit));
     tmax = isolate(input$tmax);
     
     bP = isolate(input$bP);
@@ -32,13 +33,13 @@ refresh <- function(input, output){
     d = isolate(input$d);
     w = isolate(input$w);
     
-    lambda = isolate(input$lambda)
+    m = isolate(input$m)
     n = isolate(input$n);
-    sigma = isolate(input$sigma)
+    s = isolate(input$s)
     
     
     # Call the ODE solver with the given parameters
-    result <- simulate_idpatterns(PopSize = PopSize, P0 = P0, tmax = tmax, bP = bP, bA = bA, bI = bI, gP = gP , gA = gA, gI = gI, f = f, d = d, w = w, lambda = lambda, n = n, sigma = sigma)
+    result <- simulate_idpatterns(S0 = S0, P0 = P0, timeunit = timeunit, tmax = tmax, bP = bP, bA = bA, bI = bI, gP = gP , gA = gA, gI = gI, f = f, d = d, w = w, m = m, n = n, s = s)
     
     return(list(result))
   })
@@ -72,9 +73,9 @@ server <- function(input, output, session) {
 
 #This is the UI part of the shiny App
 ui <- fluidPage(
-  includeCSS("../shinystyle.css"),
+  includeCSS("../styles/dsaide.css"),
   #add header and title
-  tags$head( tags$script(src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML", type = 'text/javascript') ),
+   
   div( includeHTML("www/header.html"), align = "center"),
   #specify name of App below, will show up in title
   h1('ID Patterns App', align = "center", style = "background-color:#123c66; color:#fff"),
@@ -91,7 +92,6 @@ ui <- fluidPage(
   ), #end section to add buttons
   
   tags$hr(),
-  
   ################################
   #Split screen with input on left, output on right
   fluidRow(
@@ -100,65 +100,70 @@ ui <- fluidPage(
            #################################
            # Inputs section
            h2('Simulation Settings'),
-           
+           fluidRow(
+             column(12,
+                    selectInput("timeunit", "Time units for simulation",c("days" = 1, 'weeks' = 2, 'months' = 3, 'years' = 4) )
+             ),
+             align = "center"
+           ), #close fluidRow structure for input   
            fluidRow(
              column(4,
-                    sliderInput("PopSize", "Population Size", min = 1000, max = 5000, value = 1000, step = 500)
+                    numericInput("tmax", "Maximum simulation time (tmax)", min = 6, max = 12000, value = 300, step = 1)
              ),
              column(4,
-                    sliderInput("P0", "Initial number of presymptomatic hosts", min = 0, max = 100, value = 0, step = 1)
+                    numericInput("S0", "Initial number of susceptible hosts (S0)", min = 1000, max = 5000, value = 1000, step = 500)
              ),
              column(4,
-                    sliderInput("tmax", "Maximum simulation time (months)", min = 6, max = 12000, value = 120, step = 12)
+                    numericInput("P0", "Initial number of presymptomatic hosts (P0)", min = 0, max = 100, value = 1, step = 1)
              ),
              align = "center"
            ), #close fluidRow structure for input
-           
+        
            fluidRow(
              column(4,
-                    sliderInput("bP", "Level/Rate of transmission by presymptomatic hosts (bP, 1/months)", min = 0, max = 0.01, value = 0, step = 0.0001 , sep ='')
+                    numericInput("bP", "Level/Rate of transmission by presymptomatic hosts (bP)", min = 0, max = 0.01, value = 0, step = 0.0001  )
              ),
              column(4,
-                    sliderInput("bA", "Level/Rate of transmission by asymptomatic hosts (bA, 1/months)", min = 0, max = 0.01, value = 0, step = 0.0001 , sep ='')
+                    numericInput("bA", "Level/Rate of transmission by asymptomatic hosts (bA)", min = 0, max = 0.01, value = 0, step = 0.0001  )
              ),
              column(4,
-                    sliderInput("bI", "Level/Rate of transmission by symptomatic hosts (bI, 1/months)", min = 0, max = 0.01, value = 0, step = 0.0001 , sep ='')
-             ),
-             align = "center"
-           ), #close fluidRow structure for input
-           fluidRow(
-             column(4,
-                    sliderInput("gP", "Rate at which presymptomatic hosts leave compartment (gP, 1/months)", min = 0, max = 5, value = 0.5, step = 0.1)
-             ),
-             column(4,
-                    sliderInput("gA", "Rate at which asymptomatic hosts leave compartment (gA, 1/months)", min = 0, max = 5, value = 0.5, step = 0.1)
-             ),
-             column(4,
-                    sliderInput("gI", "Rate at which symptomatic hosts leave compartment (gI, 1/months)", min = 0, max = 5, value = 0.5, step = 0.1)
+                    numericInput("bI", "Level/Rate of transmission by symptomatic hosts (bI)", min = 0, max = 0.01, value = 0.001, step = 0.0001  )
              ),
              align = "center"
            ), #close fluidRow structure for input
            fluidRow(
              column(4,
-                    sliderInput("f", "Fraction of asymptomatic infections (f)", min = 0, max = 1, value = 0, step = 0.1)
+                    numericInput("gP", "Rate at which presymptomatic hosts leave compartment (gP,)", min = 0, max = 5, value = 0.5, step = 0.1)
              ),
              column(4,
-                    sliderInput("d", "Fraction of deaths in symptomatic hosts (d)", min = 0, max = 1, value = 0, step = 0.1)
+                    numericInput("gA", "Rate at which asymptomatic hosts leave compartment (gA)", min = 0, max = 5, value = 0.5, step = 0.1)
              ),
              column(4,
-                    sliderInput("w", "Rate of immunity loss (w, 1/months)", min = 0, max = 0.5, value = 0.0, step = 0.01 , sep ='')
+                    numericInput("gI", "Rate at which symptomatic hosts leave compartment (gI)", min = 0, max = 5, value = 0.5, step = 0.1)
+             ),
+             align = "center"
+           ), #close fluidRow structure for input
+           fluidRow(
+             column(4,
+                    numericInput("f", "Fraction of asymptomatic infections (f)", min = 0, max = 1, value = 0, step = 0.1)
+             ),
+             column(4,
+                    numericInput("d", "Fraction of deaths in symptomatic hosts (d)", min = 0, max = 1, value = 0, step = 0.1)
+             ),
+             column(4,
+                    numericInput("w", "Rate of immunity loss (w)", min = 0, max = 0.5, value = 0, step = 0.01  )
              ),
              align = "center"
            ),
            fluidRow(
              column(4,
-                    sliderInput("lambda", "Monthly rate of new births (lambda)", min = 0, max = 100, value = 0, step = 1)
+                    numericInput("m", "Rate of births (m)", min = 0, max = 100, value = 0, step = 1)
              ),
              column(4,
-                    sliderInput("n", "Natural death rate (n, 1/months)", min = 0, max = 0.02, value = 0, step = 0.0005, sep ='')
+                    numericInput("n", "Natural death rate (n)", min = 0, max = 0.02, value = 0, step = 0.0005 )
              ),
              column(4,
-                    sliderInput("sigma", "Strength of seasonal variation of transmission (sigma)", min = 0, max = 1, value = 0, step = 0.1)
+                    numericInput("s", "Strength of seasonal variation of transmission (s)", min = 0, max = 1, value = 0, step = 0.1)
              ),
              align = "center"
            ) #close fluidRow structure for input

@@ -4,8 +4,8 @@
 \alias{simulate_reproductivenumber}
 \title{Simulation of a compartmental infectious disease transmission model to study the reproductive number}
 \usage{
-simulate_reproductivenumber(S0 = 1000, I0 = 0, f = 0, e = 0,
-  tmax = 300, gamma = 50, beta = 0.1, lambda = 20, n = 1/50, w = 0)
+simulate_reproductivenumber(S0 = 1000, I0 = 1, f = 0, e = 0,
+  tmax = 300, g = 10, b = 0.01, m = 0, n = 0, w = 0)
 }
 \arguments{
 \item{S0}{initial number of susceptible hosts}
@@ -19,11 +19,11 @@ simulate_reproductivenumber(S0 = 1000, I0 = 0, f = 0, e = 0,
 \item{tmax}{maximum simulation time, units depend on choice of units for your
 parameters}
 
-\item{gamma}{rate at which a person leaves the I compartment}
+\item{g}{rate at which a person leaves the I compartment}
 
-\item{beta}{level/rate of infectiousness for hosts in the I compartment}
+\item{b}{level/rate of infectiousness for hosts in the I compartment}
 
-\item{lambda}{the rate at which new individuals enter the model (are born)}
+\item{m}{the rate at which new individuals enter the model (are born)}
 
 \item{n}{the rate of natural death (the inverse it the average lifespan)}
 
@@ -59,7 +59,7 @@ A compartmental ID model with several states/compartments
   # To run the simulation with default parameters just call this function
   result <- simulate_reproductivenumber()
   # To choose parameter values other than the standard one, specify them e.g. like such
-  result <- simulate_reproductivenumber(S0 = 2000, I0 = 10, tmax = 100, gamma = 0.5, n = 0.1)
+  result <- simulate_reproductivenumber(S0 = 2000, I0 = 10, tmax = 100, g = 0.5, n = 0.1)
   # You should then use the simulation result returned from the function, e.g. like this:
   plot(result[,1],result[,2],xlab='Time',ylab='Number Susceptible',type='l')
 }

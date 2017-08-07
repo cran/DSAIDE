@@ -4,7 +4,7 @@
 
 <head>
 
-<meta charset="utf-8">
+<meta charset="utf-8" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 
@@ -12,7 +12,7 @@
 
 <meta name="author" content="Andreas Handel" />
 
-<meta name="date" content="2017-02-28" />
+<meta name="date" content="2017-08-07" />
 
 <title>DSAIDE Package Tutorial</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">DSAIDE Package Tutorial</h1>
 <h4 class="author"><em><a href="http://handelgroup.uga.edu">Andreas Handel</a></em></h4>
-<h4 class="date"><em>2017-02-28</em></h4>
+<h4 class="date"><em>2017-08-07</em></h4>
 
 
 
@@ -84,74 +84,75 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>The underlying models are written as compartmental dynamical models, either deterministic using differential equations (deSolve package) or stochastic using a Gillespie-type approach (adaptivetau package). A graphical user interface is wrapped around each simulation/app. The graphical user interfaces are written using the functionality of the R Shiny package. This allows exploration of models and infectious disease epidemiology concepts without the need to write any code. At the same time, the package is structured in a modular way that should allow those interested in the actual models and learning R coding to easily move from one stage to another.</p>
 <p>Each app is meant to be fully self-explanatory and contains a description of the model, a list of tasks the user could try, and information on further details and readings.</p>
 <p>The following simulations/apps are currently available:</p>
-<table style="width:44%;">
-<colgroup>
-<col width="9%"></col>
-<col width="12%"></col>
-<col width="22%"></col>
-</colgroup>
+<p>The following simulations/apps are currently available:</p>
+<table>
 <thead>
 <tr class="header">
-<th>App Name</th>
-<th>Model</th>
-<th>Topic Covered</th>
+<th align="left">App_Name</th>
+<th align="left">Model</th>
+<th align="left">Topic_covered</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>ID Dynamics Intro</td>
-<td>3 compartment (SIR) ODE model</td>
-<td>A first introduction to a simple compartmental SIR model. Allows simulation of a single outbreak for different parameter and initial condition settings.</td>
+<td align="left">ID Dynamics Intro</td>
+<td align="left">3 compartment (SIR) ODE model</td>
+<td align="left">A first introduction to a simple compartmental SIR model. Allows simulation of a single outbreak for different parameter and initial condition settings.</td>
 </tr>
 <tr class="even">
-<td>Characteristics of ID</td>
-<td>6 compartment ODE model</td>
-<td>The potential role of different disease states (e.g. pre-symptomatic, asymptomatic, symptomatic) on ID dynamics.</td>
+<td align="left">Characteristics of ID</td>
+<td align="left">6 compartment ODE model</td>
+<td align="left">The potential role of different disease states (e.g. pre-symptomatic, asymptomatic, symptomatic) on ID dynamics.</td>
 </tr>
 <tr class="odd">
-<td>ID Patterns</td>
-<td>6 compartment ODE model. Includes births-deaths, waning immunity, seasonality.</td>
-<td>Different ID patterns (single outbreak, oscillations, steady states).</td>
+<td align="left">ID Patterns</td>
+<td align="left">6 compartment ODE model. Includes births-deaths, waning immunity, seasonality.</td>
+<td align="left">Different ID patterns (single outbreak, osciallations, steady states).</td>
 </tr>
 <tr class="even">
-<td>Direct Transmission</td>
-<td>3 compartment ODE model. Births-deaths and waning immunity are included.</td>
-<td>The differences between density-dependent and frequency-dependent transmission and their impact on ID dynamics.</td>
+<td align="left">Direct Transmission</td>
+<td align="left">3 compartment ODE model. Births, deaths and waning immunity are included.</td>
+<td align="left">The differences between density-dependent and frequency-dependent transmission and their impact on ID dynamics.</td>
 </tr>
 <tr class="odd">
-<td>Environmental Transmission</td>
-<td>4 compartment ODE model. Includes explicit environmental stage. Births-deaths and waning immunity are included.</td>
-<td>The impact of environmental shedding, decay and transmission.</td>
+<td align="left">Environmental Transmission</td>
+<td align="left">4 compartment ODE model. Includes explicit environmental stage. Births-deaths and waning immunity are included.</td>
+<td align="left">The impact of environmental shedding, decay and transmission.</td>
 </tr>
 <tr class="even">
-<td>Vector Transmission</td>
-<td>5 compartment ODE model. Includes susceptible and infected vectors and their dynamics. Births-deaths for vectors and waning immunity for hosts are included.</td>
-<td>Exploration of a simple vector-borne transmission model.</td>
+<td align="left">Vector Transmission</td>
+<td align="left">5 compartment ODE model. Includes susceptible and infected vectors and their dynamics. Births and deaths for vectors and waning immunity for hosts are included.</td>
+<td align="left">Exploration of a simple vector-borne transmission model.</td>
 </tr>
 <tr class="odd">
-<td>Reproductive Number</td>
-<td>3 compartment ODE model. Includes vaccination of population at beginning of simulation. Births-deaths and waning immunity are included.</td>
-<td>The reproductive number concept and how to estimate it from (simulated) data.</td>
+<td align="left">Reproductive Number</td>
+<td align="left">3 compartment ODE model. Includes vaccination of population at the beginning of the simulation. Births, deaths and waning immunity are included.</td>
+<td align="left">The reproductive number concept and how to estimate it from (simulated) data.</td>
 </tr>
 <tr class="even">
-<td>ID Control</td>
-<td>9 compartment ODE model. An environmental and 2 vector stages as well as 6 host stages.</td>
-<td>The impact of different control measures for different types of ID.</td>
+<td align="left">ID Control</td>
+<td align="left">9 compartment ODE model. An environmental and 2 vector stages as well as 6 host stages.</td>
+<td align="left">The impact of different control measures for different types of ID.</td>
 </tr>
 <tr class="odd">
-<td>Host Heterogeneity</td>
-<td>6 compartment ODE model. 2x SIR for 2 different hosts.</td>
-<td>The impact of host heterogeneity and core groups on ID dynamics and control.</td>
+<td align="left">Host Heterogeneity</td>
+<td align="left">6 compartment ODE model. 2x SIR for 2 different hosts.</td>
+<td align="left">The impact of host heterogeneity and core groups on ID dynamics and control.</td>
 </tr>
 <tr class="even">
-<td>Stochastic dynamics</td>
-<td>4 compartment (SEIR) stochastic model.</td>
-<td>The impact of stochasticity on dynamics, the phenomenon of ID extinction.</td>
+<td align="left">Stochastic dynamics</td>
+<td align="left">4 compartment (SEIR) stochastic model.</td>
+<td align="left">The impact of stochasticity on dynamics, the phenomenon of ID extinction.</td>
 </tr>
 <tr class="odd">
-<td>Evolutionary dynamics</td>
-<td>5 compartment stochastic model. Untreated and treated hosts infected with wild-type, and hosts infected with resistant strain.</td>
-<td>Interaction between drug treatment and evolution/emergence of drug resistance.</td>
+<td align="left">Evolutionary dynamics</td>
+<td align="left">5 compartment stochastic model. Untreated and treated hosts infected with wild-type, and hosts infected with a resistant strain.</td>
+<td align="left">Interaction between drug treatment and evolution/emergence of drug resistance.</td>
+</tr>
+<tr class="even">
+<td align="left">Multi-Pathogen Dynamics</td>
+<td align="left">9 compartment ODE model with basic SIR dynamics.</td>
+<td align="left">Infection dynamics with 2 pathogens that act independently.</td>
 </tr>
 </tbody>
 </table>
@@ -210,8 +211,7 @@ for (n in <span class="dv">1</span>:<span class="kw">length</span>(gvec))
 }
 <span class="co">#plot final result</span>
 <span class="kw">plot</span>(gvec,peak,<span class="dt">type=</span><span class="st">'p'</span>,<span class="dt">xlab=</span><span class="st">'Rate of recovery'</span>,<span class="dt">ylab=</span><span class="st">'Max number of infected'</span>)</code></pre></div>
-<p><img src="data:image/png;base64,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" /><!-- --></p>
-<p>Thus, the user can add their own custom code to the existing simulator functions and with a few lines of extra code analyze and explore many more questions and scenarios than those accessible through the graphical interface. This provides a lot more flexibility, but requires writing some R code to interface with the supplied simulator functions.</p>
+<p><img src="data:image/png;base64,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" /><!-- --> devtools::release() Thus, the user can add their own custom code to the existing simulator functions and with a few lines of extra code analyze and explore many more questions and scenarios than those accessible through the graphical interface. This provides a lot more flexibility, but requires writing some R code to interface with the supplied simulator functions.</p>
 </div>
 <div id="level-3-modifying-the-simulation-functions" class="section level3">
 <h3>Level 3: Modifying the simulation functions</h3>
@@ -251,12 +251,12 @@ for (n in <span class="dv">1</span>:<span class="kw">length</span>(wvec))
 </div>
 <div id="developing-and-contributing-new-apps-to-the-package" class="section level2">
 <h2>Developing and contributing new apps to the package</h2>
-<p>The package is built in a way that makes it (hopefully) easy for others to contribute new simulations/apps. To that end, the package contains a subfolder called <em>docsfordevelopers</em>, which provides information on how the apps are structured and how to add new ones. In brief, each app consists of a simulator function and a shiny app function which calls the simulator function. Further HTML files provide the documentation displayed in each app. Developing a new app consists of writing (at least) 2 R functions (<em>simulate_NNNNNN.R</em> and the corresponding <em>app.R</em>) and filling the provided RMarkdown template for the documentation, then running a few functions to process everything.</p>
+<p>The package is built in a way that makes it (hopefully) easy for others to contribute new simulations/apps. To that end, the package contains a subfolder called <em>docsfordevelopers</em>, which provides information on how the apps are structured and how to add new ones. In brief, each app consists of a simulator function and a shiny app function which calls the simulator function. AN R Markdown file, which is turned into multiple HTML files by a provided script, should include the documentation displayed in each app. Developing a new app consists of writing (at least) 2 R functions (<em>simulate_NNNNNN.R</em> and the corresponding <em>app.R</em>) and filling the provided RMarkdown template for the documentation, then running a few functions to process everything.</p>
 <p>The information in the <em>docsfordevelopers</em> folder contains more details and is hopefully complete enough to allow fairly easy development and contribution to the package. If you are interested in contributing further apps, I suggest you get in touch with me, either by email (<a href="mailto:ahandel@uga.edu">ahandel@uga.edu</a>) or through the github site for the package (<a href="https://github.com/ahgroup/DSAIDE" class="uri">https://github.com/ahgroup/DSAIDE</a>).</p>
 </div>
 <div id="acknowledgements" class="section level2">
 <h2>Acknowledgements</h2>
-<p>The following individuals contributed to this package: Sina Solaimanpour, Brian McKay, John Rossow.</p>
+<p>The following individuals contributed to this package: Spencer Hall, Brian McKay, John Rossow, Sina Solaimanpour.</p>
 </div>
 <div id="references" class="section level2 unnumbered">
 <h2>References</h2>
@@ -277,7 +277,7 @@ for (n in <span class="dv">1</span>:<span class="kw">length</span>(wvec))
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
 </script>
