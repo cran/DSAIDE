@@ -55,14 +55,14 @@ idcontrolode <- function(t, y, parms)
 #' @param c rate of pathogen decay in environment 
 #' @param f fraction of pre-symptomatic individuals that have an asymptomatic infection
 #' @param d fraction of symptomatic infected hosts that die due to disease
-#' @param w rate at which recovered persons loose immunity and return to susceptible state
+#' @param w rate at which recovered persons lose immunity and return to susceptible state
 #' @param mh the rate at which new hosts enter the model (are born)
 #' @param nh the rate of natural death of hosts (the inverse it the average lifespan)
 #' @param mv the rate at which new vectors enter the model (are born)
 #' @param nv the rate of natural death of vectors (the inverse it the average lifespan)
 #' @param tmax maximum simulation time, in units of months
 #' @return This function returns the simulation result as obtained from a call
-#'   to the deSolve ode solver
+#'   to the deSolve ode solver.
 #' @details A compartmental ID model with several states/compartments
 #'   is simulated as a set of ordinary differential
 #'   equations. The function returns the output from the odesolver as a matrix,
@@ -72,13 +72,20 @@ idcontrolode <- function(t, y, parms)
 #'   something nonsensical (e.g. have I0 > PopSize or any negative values or fractions > 1),
 #'   the code will likely abort with an error message
 #' @examples
-#'   # To run the simulation with default parameters just call this function
+#'   # To run the simulation with default parameters just call the function:
 #'   result <- simulate_idcontrol()
-#'   # To choose parameter values other than the standard one, specify them e.g. like such
+#'   # To choose parameter values other than the standard one, specify them like such:
 #'   result <- simulate_idcontrol(S0 = 2000, I0 = 10, tmax = 100, f = 0.1, d = 0.2)
-#'   # You should then use the simulation result returned from the function, e.g. like this:
-#'   plot(result[,1],result[,2],xlab='Time',ylab='Number Susceptible',type='l')
-#' @seealso The UI of the shiny app 'IDPatterns', which is part of this package, contains more details on the model
+#'   # You should then use the simulation result returned from the function, like this:
+#'   plot(result$ts[ , "Time"], result$ts[ , "S"],xlab='Time',ylab='Number Susceptible',type='l')
+#'   # Consider also a case where recoverd persons become susceptible again at a 
+#'   # rate of 1.5.
+#'   result <- simulate_idcontrol(S0 = 2000, I0 = 10, tmax = 100, w = 1.5)
+#'   plot(result$ts[,"Time"], result$ts[,"S"],xlab = "Time",ylab = "Number Susceptible",type="l")
+#'   # Make death rate of natural hosts 0.5 and rate of pathogen decay 0.1.
+#'   result <- simulate_idcontrol(S0 = 2000, I0 = 10, tmax = 100, nh = 0.5, c = 0.1)
+#'   plot(result$ts[,"Time"], result$ts[,"S"],xlab = "Time",ylab = "Number Susceptible",type="l")
+#' @seealso The UI of the Shiny app 'IDPatterns', which is part of this package, contains more details on the model.
 #' @references See e.g. Keeling and Rohani 2008 for SIR models and the
 #'   documentation for the deSolve package for details on ODE solvers
 #' @author Andreas Handel
@@ -97,6 +104,9 @@ simulate_idcontrol <- function(S0 = 1000, I0 = 1, E0 = 0, Sv0 = 1000, Iv0 = 0, t
   #the result is saved in the odeoutput matrix, with the 1st column the time, the 2nd, 3rd, 4th column the variables S, I, R
   odeoutput = deSolve::ode(y = Y0, times = timevec, func = idcontrolode, parms=pars, method = "vode", atol=1e-12, rtol=1e-12);
 
-  #The output produced by a call to the odesolver is odeoutput matrix is returned by the function
-  return(odeoutput)
+  colnames(odeoutput) <- c('Time','S','P','A','I','R','D','Sv','Iv','E')
+  result <- list()
+  result$ts <- as.data.frame(odeoutput)
+  
+  return(result)
 }

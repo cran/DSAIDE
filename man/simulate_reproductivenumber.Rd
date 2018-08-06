@@ -27,7 +27,7 @@ parameters}
 
 \item{n}{the rate of natural death (the inverse it the average lifespan)}
 
-\item{w}{rate at which recovered persons loose immunity and return to susceptible state}
+\item{w}{rate at which recovered persons lose immunity and return to susceptible state}
 }
 \value{
 This function returns the simulation result as obtained from a call
@@ -56,19 +56,26 @@ A compartmental ID model with several states/compartments
 }
 
 \examples{
-  # To run the simulation with default parameters just call this function
+  # To run the simulation with default parameters just call the function:
   result <- simulate_reproductivenumber()
-  # To choose parameter values other than the standard one, specify them e.g. like such
+  # To choose parameter values other than the standard one, specify them like such:
   result <- simulate_reproductivenumber(S0 = 2000, I0 = 10, tmax = 100, g = 0.5, n = 0.1)
-  # You should then use the simulation result returned from the function, e.g. like this:
-  plot(result[,1],result[,2],xlab='Time',ylab='Number Susceptible',type='l')
+  # You should then use the simulation result returned from the function, like this:
+  plot(result$ts[ , "Time"],result$ts[ , "S"],xlab='Time',ylab='Number Susceptible',type='l')
+  # We might also want to have infectiousness rate for hosts in the I compartment
+  # of 0.4.
+  result <- simulate_reproductivenumber(S0 = 2000, I0 = 10, tmax = 100, b = 0.4)
+  plot(result$ts[,"Time"],result$ts[,"S"],xlab = "Time", ylab = "Number Susceptible",type="l")
+  # We could also have infectiousness rate of 0.6 and recovery rate of 0.2.
+  result <- simulate_reproductivenumber(S0 = 2000, I0 = 10, tmax = 100, b = 0.6, g = 0.2)
+  plot(result$ts[,"Time"],result$ts[,"S"],xlab = "Time", ylab = "Number Susceptible",type="l")
 }
 \references{
 See e.g. Keeling and Rohani 2008 for SIR models and the
   documentation for the deSolve package for details on ODE solvers
 }
 \seealso{
-The UI of the shiny app 'ReproductiveNumber', which is part of this package, contains more details on the model.
+The UI of the Shiny app 'ReproductiveNumber', which is part of this package, contains more details on the model.
 }
 \author{
 Andreas Handel

@@ -4,8 +4,9 @@
 \alias{simulate_directtransmission}
 \title{Simulation of a compartmental infectious disease transmission model illustrating different types of direct transmission}
 \usage{
-simulate_directtransmission(S0 = 1000, I0 = 1, tmax = 120, scenario = 1,
-  bd = 0.01, bf = 0, A = 1, m = 0, n = 0, g = 0.1, w = 0)
+simulate_directtransmission(S0 = 1000, I0 = 1, tmax = 120,
+  scenario = 1, bd = 0.01, bf = 0, A = 1, m = 0, n = 0,
+  g = 0.1, w = 0)
 }
 \arguments{
 \item{S0}{initial number of susceptibles}
@@ -32,7 +33,7 @@ simulate_directtransmission(S0 = 1000, I0 = 1, tmax = 120, scenario = 1,
 }
 \value{
 This function returns the simulation result as obtained from a call
-  to the deSolve ode solver
+  to the deSolve ode solver.
 }
 \description{
 This model allows for the simulation of different direct transmission modes
@@ -40,8 +41,10 @@ This model allows for the simulation of different direct transmission modes
 \details{
 A compartmental ID model with several states/compartments
   is simulated as a set of ordinary differential
-  equations. The function returns the output from the odesolver as a matrix,
-  with one column per compartment/variable. The first column is time.
+  equations. The function returns the output from the odesolver as a list,
+  with the element ts, which is a dataframe whose columns represent time,
+  the number of susceptibles, the number of infected, and the number of
+  recovered.
 }
 \section{Warning}{
 
@@ -51,19 +54,19 @@ A compartmental ID model with several states/compartments
 }
 
 \examples{
-  # To run the simulation with default parameters just call this function
+  # To run the simulation with default parameters just call this function:
   result <- simulate_directtransmission()
-  # To choose parameter values other than the standard one, specify them e.g. like such
+  # To choose parameter values other than the standard one, specify them like such:
   result <- simulate_directtransmission(S0 = 100, tmax = 100, A=10)
-  # You should then use the simulation result returned from the function, e.g. like this:
-  plot(result[,1],result[,2],xlab='Time',ylab='Number Susceptible',type='l')
+  # You should then use the simulation result returned from the function, like this:
+  plot(result$ts[,"Time"],result$ts[,"S"],xlab='Time',ylab='Number Susceptible',type='l')
 }
 \references{
 See e.g. Keeling and Rohani 2008 for SIR models and the
   documentation for the deSolve package for details on ODE solvers
 }
 \seealso{
-The UI of the shiny app 'DirectTransmission', which is part of this package, contains more details on the model
+The UI of the Shiny app 'DirectTransmission', which is part of this package, contains more details on the model.
 }
 \author{
 Andreas Handel

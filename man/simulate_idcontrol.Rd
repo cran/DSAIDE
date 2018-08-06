@@ -4,10 +4,11 @@
 \alias{simulate_idcontrol}
 \title{Simulation of a compartmental infectious disease transmission model including different control mechanisms}
 \usage{
-simulate_idcontrol(S0 = 1000, I0 = 1, E0 = 0, Sv0 = 1000, Iv0 = 0,
-  tmax = 300, bP = 0, bA = 0, bI = 1/1000, bE = 0, bv = 1/1000,
-  bh = 1/1000, gP = 0.5, gA = 0.5, gI = 0.5, pA = 1, pI = 10,
-  c = 1, f = 0, d = 0, w = 0, mh = 0, nh = 0, mv = 0, nv = 0)
+simulate_idcontrol(S0 = 1000, I0 = 1, E0 = 0, Sv0 = 1000,
+  Iv0 = 0, tmax = 300, bP = 0, bA = 0, bI = 1/1000, bE = 0,
+  bv = 1/1000, bh = 1/1000, gP = 0.5, gA = 0.5, gI = 0.5,
+  pA = 1, pI = 10, c = 1, f = 0, d = 0, w = 0, mh = 0,
+  nh = 0, mv = 0, nv = 0)
 }
 \arguments{
 \item{S0}{initial number of susceptible hosts}
@@ -50,7 +51,7 @@ simulate_idcontrol(S0 = 1000, I0 = 1, E0 = 0, Sv0 = 1000, Iv0 = 0,
 
 \item{d}{fraction of symptomatic infected hosts that die due to disease}
 
-\item{w}{rate at which recovered persons loose immunity and return to susceptible state}
+\item{w}{rate at which recovered persons lose immunity and return to susceptible state}
 
 \item{mh}{the rate at which new hosts enter the model (are born)}
 
@@ -62,7 +63,7 @@ simulate_idcontrol(S0 = 1000, I0 = 1, E0 = 0, Sv0 = 1000, Iv0 = 0,
 }
 \value{
 This function returns the simulation result as obtained from a call
-  to the deSolve ode solver
+  to the deSolve ode solver.
 }
 \description{
 Simulation of a compartmental model with several different compartments:
@@ -87,19 +88,26 @@ A compartmental ID model with several states/compartments
 }
 
 \examples{
-  # To run the simulation with default parameters just call this function
+  # To run the simulation with default parameters just call the function:
   result <- simulate_idcontrol()
-  # To choose parameter values other than the standard one, specify them e.g. like such
+  # To choose parameter values other than the standard one, specify them like such:
   result <- simulate_idcontrol(S0 = 2000, I0 = 10, tmax = 100, f = 0.1, d = 0.2)
-  # You should then use the simulation result returned from the function, e.g. like this:
-  plot(result[,1],result[,2],xlab='Time',ylab='Number Susceptible',type='l')
+  # You should then use the simulation result returned from the function, like this:
+  plot(result$ts[ , "Time"], result$ts[ , "S"],xlab='Time',ylab='Number Susceptible',type='l')
+  # Consider also a case where recoverd persons become susceptible again at a 
+  # rate of 1.5.
+  result <- simulate_idcontrol(S0 = 2000, I0 = 10, tmax = 100, w = 1.5)
+  plot(result$ts[,"Time"], result$ts[,"S"],xlab = "Time",ylab = "Number Susceptible",type="l")
+  # Make death rate of natural hosts 0.5 and rate of pathogen decay 0.1.
+  result <- simulate_idcontrol(S0 = 2000, I0 = 10, tmax = 100, nh = 0.5, c = 0.1)
+  plot(result$ts[,"Time"], result$ts[,"S"],xlab = "Time",ylab = "Number Susceptible",type="l")
 }
 \references{
 See e.g. Keeling and Rohani 2008 for SIR models and the
   documentation for the deSolve package for details on ODE solvers
 }
 \seealso{
-The UI of the shiny app 'IDPatterns', which is part of this package, contains more details on the model
+The UI of the Shiny app 'IDPatterns', which is part of this package, contains more details on the model.
 }
 \author{
 Andreas Handel
