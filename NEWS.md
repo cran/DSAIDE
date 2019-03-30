@@ -1,3 +1,28 @@
+# DSAIDE 0.8.0
+
+## User facing changes
+
+* Easy download of all simulator functions from main menu
+
+* User can switch between ggplot and plotly for figures
+
+* The list of "what to do" tasks can be floated
+
+* Added new apps
+
+* Additional UI improvement
+
+## Other changes
+
+* More unit tests
+
+* Allow for easy deployment to shinyappsio
+
+* package restructured
+
+* various bug fixes
+
+
 # DSAIDE 0.7.0
 
 ## User facing changes
