@@ -30,10 +30,10 @@
 #'   the code will likely abort with an error message.
 #' @examples
 #'   # To run the simulation with default parameters just call the function:
-#'   result <- simulate_reproductivenumber_ode()
+#'   result <- simulate_reproductivenumber2_ode()
 #'   # To choose parameter values other than the standard one, 
 #'   # specify the parameters you want to change, e.g. like such:
-#'   result <- simulate_reproductivenumber_ode(S = 2000, I = 10, tmax = 100, g = 0.5, n = 0.1)
+#'   result <- simulate_reproductivenumber2_ode(S = 2000, I = 10, tmax = 100, g = 0.5, n = 0.1)
 #'   # You should then use the simulation result returned from the function, like this:
 #'   plot(result$ts[ , "time"],result$ts[ , "S"],xlab='Time',ylab='Number Susceptible',type='l')
 #' @seealso The UI of the app 'ReproductiveNumber 2', which is part of this package, contains more details on the model.
@@ -43,7 +43,7 @@
 #' @export
 
 
-simulate_reproductivenumber_ode <- function(S = 1000, I = 1, f = 0.0, e = 0.0, b = 1e-2, g = 10, m = 0, n = 0, w = 0, tmax = 300){
+simulate_reproductivenumber2_ode <- function(S = 1000, I = 1, f = 0.0, e = 0.0, b = 1e-2, g = 10, m = 0, n = 0, w = 0, tmax = 300){
 
   
   ############################################################

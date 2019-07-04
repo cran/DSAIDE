@@ -1,18 +1,15 @@
 #This is a bit of code and instructions for deployment of the package to shinyappsio
 #to deploy, follow these steps:
-#1. go into the folder where this file resides
-#2. copy the regular app.R file into this folder, add this bit of code on top of it
-#3. install the package through CRAN or github if we want to use the github version
+#1. go into the folder where this file (app.R) resides
+#2. install the package through CRAN or github if we want to use the github version
 #devtools::install_github('ahgroup/DSAIDE')
-#4. to deploy, run the following
-#run rsconnect::deployApp()
-
-#this line of code needs to be here for shinyappsio deployment
-#should not be present for regular package use
+#3. #uncomment this line of code  
 #library('DSAIDE')
+#4. with the above 'library' statement active, deploy with:
+#run rsconnect::deployApp()
+#5. comment out the library command again
 
-#copy this code on top of the regular app.R file
-#app.R file of package starts below
+
 ##############################################
 #This is the Shiny App for the main menu of DSAIDE
 
@@ -284,36 +281,48 @@ ui <- fluidPage(
 
                       tags$div(class='mainsectionheader', 'Controlling Infectious Diseases'),
                       fluidRow(
-                        actionButton("idcontrol1", "ID Control 1", class="mainbutton"),  
-                        actionButton("idcontrol2", "ID Control 2", class="mainbutton"), 
+                        actionButton("idcontrolvaccine", "Basics of ID control", class="mainbutton"),  
+                        actionButton("idcontrolmultioutbreak", "ID control for multiple outbreaks", class="mainbutton"),  
+                        actionButton("idcontrolcomplex", "Complex ID control scenarios", class="mainbutton"), 
                         class = "mainmenurow"
                       ), #close fluidRow structure for input
 
-                      tags$div(class='mainsectionheader', 'Types of Transmission'),
+                      tags$div(class='mainsectionheader', 'Types of transmission'),
                       fluidRow(
-                        actionButton("directtransmission", "Direct Transmission", class="mainbutton"),  
-                      actionButton("environmentaltransmission", "Environmental Transmission", class="mainbutton"),
-                        actionButton("vectortransmission", "Vector Transmission", class="mainbutton"),
+                        actionButton("directtransmission", "Direct transmission", class="mainbutton"),  
+                      actionButton("environmentaltransmission", "Environmental transmission", class="mainbutton"),
+                        actionButton("vectortransmission", "Vector transmission", class="mainbutton"),
                         class = "mainmenurow"
                       ), #close fluidRow structure for input
                       
-                      tags$div(class='mainsectionheader', 'Stochastic Models'),
+                      tags$div(class='mainsectionheader', 'Stochastic models'),
                       fluidRow(
-                        actionButton("stochasticsir", "Stochastic SIR Model", class="mainbutton"),  
-                         actionButton("stochasticseir", "Stochastic SEIR Model", class="mainbutton"),
-                         actionButton("evolutionarydynamics", "Evolutionary Dynamics", class="mainbutton"),
+                        actionButton("stochasticsir", "Stochastic SIR model", class="mainbutton"),  
+                         actionButton("stochasticseir", "Stochastic SEIR model", class="mainbutton"),
+                         actionButton("evolutionarydynamics", "Evolutionary dynamics", class="mainbutton"),
                         class = "mainmenurow"
                       ),
                       tags$div(class='mainsectionheader', 'Further ID topics'),
                       fluidRow(
-                        actionButton("hostheterogeneity", "Host Heterogeneity", class="mainbutton"),  
-                       actionButton("multipathogen", "Multi-Pathogen Dynamics", class="mainbutton"),
+                        actionButton("hostheterogeneity", "Host heterogeneity", class="mainbutton"),  
+                       actionButton("multipathogen", "Multi-Pathogen dynamics", class="mainbutton"),
+                       actionButton("parasitemodel", "Parasite model", class="mainbutton"),
+                       actionButton("idsurveillance", "ID surveillance", class="mainbutton"),
+                       actionButton("maternalimmunity", "Maternal immunity", class="mainbutton"),
+                       #actionButton("globalwarming", "Global Warming", class="mainbutton"),
+                       #actionButton("metapopulation", "Metapopulation Dynamics", class="mainbutton"),
+                       class = "mainmenurow"
+                      ), #close fluidRow structure for input
+                      tags$div(class='mainsectionheader', 'Fitting models to data'),
+                      fluidRow(
+                        actionButton("fitflu", "Fitting influenza data", class="mainbutton"),  
+                        actionButton("fitnoro", "Fitting norovirus data", class="mainbutton"),  
                         class = "mainmenurow"
                       ), #close fluidRow structure for input
                       tags$div(class='mainsectionheader', 'Further modeling topics'),
                       fluidRow(
-                        actionButton("modelexploration", "Model Exploration", class="mainbutton"),  
-                        actionButton("usanalysis", "Uncertainty and Sensitivity Analysis", class="mainbutton"),  
+                        actionButton("modelexploration", "Model exploration", class="mainbutton"),  
+                        actionButton("usanalysis", "Uncertainty and sensitivity analysis", class="mainbutton"),  
                         class = "mainmenurow"
                       ), #close fluidRow structure for input
                       withTags({
@@ -325,7 +334,7 @@ ui <- fluidPage(
                       }), #close withTags function
                       p('Have fun exploring the models!', class='maintext'),
                       fluidRow(
-           				      downloadButton("modeldownload", "download all simulations", class="mainbutton"),
+                        downloadButton("modeldownload", "Download R code for all simulations", class="mainbutton"),
                         actionButton("Exit", "Exit", class="exitbutton"),
                         class = "mainmenurow"
                       ) #close fluidRow structure for input
