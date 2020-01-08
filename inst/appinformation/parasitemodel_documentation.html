@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -103,7 +103,11 @@ Flow diagram for this model.
 <li>Set the birth rate such that in the absence of the disease, you get a steady population of 1000 intermediate host. (Hint: Birth rate needs to be significantly larger than death rate to achieve a steady state. You can leave the transmission rates at zero to see the effect of changing birth rates.)</li>
 <li>Set waning immunity, the rate the parasite is shed into the environment, and the decay of the parasite in the environment to zero.</li>
 <li>Run the simulation, observe what you get.</li>
-<li>You should get a 91 as the final number of susceptibles and maximum number of infected hosts of 123 but the number of infected intermediate hosts does not exceed 1. Make sure you know why. (Hint: Look at the number of parasites in the environment. You should notice that there are no parasites being shed into the environment and no environmental transmission so the number of infected intermediate hosts can not exceed the initial value, <em>I<sub>i0</sub></em>.</li>
+<li>You should get a 91 as the final number of susceptibles and maximum number of infected hosts of 123 but the number of infected intermediate hosts does not exceed 1.</li>
+<li>Make sure you know why.
+<ul>
+<li>Hint: Look at the number of parasites in the environment. You should notice that there are no parasites being shed into the environment and no environmental transmission so the number of infected intermediate hosts cannot exceed the initial value, <em>I<sub>i</sub></em>.</li>
+</ul></li>
 </ul></li>
 </ul>
 </div>
@@ -234,6 +238,9 @@ Flow diagram for this model.
 </div>
 </div>
 
+
+
+<!-- code folding -->
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->

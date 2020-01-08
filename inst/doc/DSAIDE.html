@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <meta name="author" content="Andreas Handel" />
 
-<meta name="date" content="2019-07-04" />
+<meta name="date" content="2020-01-08" />
 
 <title>DSAIDE Package Tutorial</title>
 
@@ -96,7 +96,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -303,20 +303,19 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">DSAIDE Package Tutorial</h1>
 <h4 class="author"><a href="http://handelgroup.uga.edu">Andreas Handel</a></h4>
-<h4 class="date">2019-07-04</h4>
+<h4 class="date">2020-01-08</h4>
 
 
 
 <div id="summary" class="section level2">
 <h2>Summary</h2>
-<p><em>Dynamical Systems Approaches to Infectious Disease Epidemiology (DSAIDE)</em> is an R package that allows you to explore and study concepts of infectious disease epidemiology using dynamical systems models. The main way of interactin with the models is through a graphical user interface. It is not necessary - though possible - to read or write computer code.</p>
+<p><em>Dynamical Systems Approaches to Infectious Disease Epidemiology/Ecology/Evolution (DSAIDE)</em> is an R package that allows you to explore and study concepts of infectious disease epidemiology (ecology/evolution) using dynamical systems models. The main way of interaction with the models is through a graphical user interface. It is not necessary - though possible - to read or write computer code.</p>
 <p>The package also provides a path toward using and building your own models by relatively seamlessly moving from the graphical user interface to direct interaction with pre-written simulations all the way to modifying the underlying simulations to fit your needs.</p>
 <p>The different use cases for the package are described below.</p>
 </div>
 <div id="package-description" class="section level2">
 <h2>Package description</h2>
-<p>The package consists of several simulations/apps that allow for the simulation and exploration of different topics in infectious disease epidemiology.</p>
-<p>The underlying models are written as compartmental dynamical models, either deterministic using differential equations (deSolve package) or stochastic using a Gillespie-type approach (adaptivetau package). A graphical user interface is wrapped around each simulation/app. The graphical user interface is written using the functionality of the R Shiny package. This allows exploration of models and concepts without the need to write any code. At the same time, the package is structured in a way that should allow those interested in the actual models and learning R coding to easily move from one stage to another.</p>
+<p>The package consists of several simulations/apps that allow for the simulation and exploration of different topics related to infectious disease dynamics. The underlying models are written as compartmental dynamical models, either deterministic using differential equations (deSolve package) or stochastic using a Gillespie-type approach (adaptivetau package). A graphical user interface is wrapped around each simulation/app. The graphical user interface is written using the functionality of the R Shiny package. This allows exploration of models and concepts without the need to write any code. At the same time, the package is structured in a way that should allow those interested in the actual models and learning R coding to easily move from one stage to another.</p>
 <p>Each app is meant to be fully self-explanatory and contains a description of the model, a list of tasks the user could try, and further information on background reading and other resources.</p>
 </div>
 <div id="intended-audience-and-goal-of-the-package" class="section level2">
@@ -487,6 +486,9 @@ Screenshot of the <em>What to do</em> section of one of the apps.
 </div>
 </div>
 
+
+
+<!-- code folding -->
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
