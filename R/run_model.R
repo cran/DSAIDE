@@ -5,8 +5,10 @@
 #'
 #' @param modelsettings a list with model settings. Required list elements are: \cr
 #' modelsettings$simfunction - name of simulation function(s) as string.  \cr
+#' modelsettings$is_mbmodel - indicate of simulation function has mbmodel structure
 #' modelsettings$modeltype - specify what kind of model should be run.
-#' Currently one of: _ode_, _discrete_, _stochastic_, _usanalysis_, _modelexploration_, _fit_ . \cr
+#' Currently one of: _ode_, _discrete_, _stochastic_, _usanalysis_, _modelexploration_, _fit_. \cr
+#' For more than one model type, place _and_ between them. \cr
 #' modelsettings$plottype - 'Boxplot' or 'Scatterplot' , required for US app \cr
 #' Optinal list elements are: \cr
 #' List elements with names and values for inputs expected by simulation function.
@@ -52,6 +54,15 @@ run_model <- function(modelsettings) {
   if (is.null(modelsettings$simfunction)) { return("List element simfunction must be provided.") }
   if (is.null(modelsettings$modeltype)) { return("List element modeltype must be provided.") }
 
+
+
+  #if the user sets the model type, apply that choice
+  #that happens for any models that have an "_and_" in their modeltype variable as defined in the spreadsheet
+  if (grepl('_and_',modelsettings$modeltype))
+  {
+    modelsettings$modeltype = modelsettings$modeltypeUI
+  }
+
   datall = NULL #will hold data for all different models and replicates
   finaltext = NULL
   simfunction = modelsettings$simfunction #name(s) for model function(s) to run
@@ -61,7 +72,7 @@ run_model <- function(modelsettings) {
   ##################################
   if (grepl('_stochastic_',modelsettings$modeltype))
   {
-    modelsettings$currentmodel = simfunction[grep('_stochastic',simfunction)] # get the ode function
+    modelsettings$currentmodel = simfunction[grep('_stochastic',simfunction)] # get the stochastic function
     noutbreaks = 0
     nreps = ifelse(is.null(modelsettings$nreps),1,modelsettings$nreps)
     for (nn in 1:nreps)
@@ -71,10 +82,18 @@ run_model <- function(modelsettings) {
       {
         modelsettings$tmax = modelsettings$tfinal
       }
+
       #create function call, then evaluate it to run model
+      fctcall = generate_fctcall(modelsettings)
+      # this means an error occurred making the call
+      if (!is.call(fctcall))
+      {
+        #return error message generated when trying to build the function call
+        return(fctcall)
+      }
       #wrap in try command to catch errors
       #send result from simulator to a check function. If that function does not return null, exit run_model with error message
-      simresult = try(eval(generate_fctcall(modelsettings)))
+      simresult = try(eval(fctcall))
       checkres <- check_results(simresult)
       if (!is.null(checkres)) {return(checkres)}
 
@@ -82,11 +101,13 @@ run_model <- function(modelsettings) {
       #needs to be in the right format to be passed to generate_plots and generate_text
       #see documentation for those functions for details
       simresult <- simresult$ts
+      if (grepl('_and_',modelsettings$modeltype)) #this means  model is run with another one, relabel variables to indicate stochastic
+      {
+        colnames(simresult) = paste0(colnames(simresult),'_sto')
+      }
       colnames(simresult)[1] = 'xvals' #rename time to xvals for consistent plotting
       #reformat data to be in the right format for plotting
       rawdat = as.data.frame(simresult)
-      #using tidyr to reshape
-      #dat = tidyr::gather(rawdat, -xvals, value = "yvals", key = "varnames")
       #using basic reshape function to reformat data
       dat = stats::reshape(rawdat, varying = colnames(rawdat)[-1], v.names = 'yvals', timevar = "varnames", times = colnames(rawdat)[-1], direction = 'long', new.row.names = NULL); dat$id <- NULL
       dat$IDvar = paste(dat$varnames,nn,sep='') #make a variable for plotting same color lines for each run in ggplot2
@@ -107,8 +128,16 @@ run_model <- function(modelsettings) {
   if (grepl('_ode_',modelsettings$modeltype)) #need to always start with ode_ in model specification
   {
     modelsettings$currentmodel = simfunction[grep('_ode',simfunction)] #list of model functions, get the ode function
+    #make the call to the simulator function by parsing inputs
+    fctcall = generate_fctcall(modelsettings)
+    # this means an error occurred making the call
+    if (!is.call(fctcall))
+    {
+      #return error message generated when trying to build the function call
+      return(fctcall)
+    }
     #run model
-    simresult = try(eval(generate_fctcall(modelsettings)))
+    simresult = try(eval(fctcall))
     checkres <- check_results(simresult)
     if (!is.null(checkres)) {return(checkres)}
 
@@ -120,9 +149,7 @@ run_model <- function(modelsettings) {
     colnames(simresult)[1] = 'xvals' #rename time to xvals for consistent plotting
     #reformat data to be in the right format for plotting
     rawdat = as.data.frame(simresult)
-    #using tidyr to reshape
-    #dat = tidyr::gather(rawdat, -xvals, value = "yvals", key = "varnames")
-    #using basic reshape function to reformat data
+     #using basic reshape function to reformat data
     dat = stats::reshape(rawdat, varying = colnames(rawdat)[-1], v.names = 'yvals', timevar = "varnames", times = colnames(rawdat)[-1], direction = 'long', new.row.names = NULL); dat$id <- NULL
 
     dat$IDvar = dat$varnames #make variables in case data is combined with stochastic runs. not used for ode.
@@ -137,17 +164,30 @@ run_model <- function(modelsettings) {
   if (grepl('_discrete_',modelsettings$modeltype))
   {
     modelsettings$currentmodel = simfunction[grep('_discrete',simfunction)] #list of model functions, get the ode function
-    #run model
-    simresult = try(eval(generate_fctcall(modelsettings)))
+
+    #create function call, then evaluate it to run model
+    fctcall = generate_fctcall(modelsettings)
+    # this means an error occurred making the call
+    if (!is.call(fctcall))
+    {
+      #return error message generated when trying to build the function call
+      return(fctcall)
+    }
+    #wrap in try command to catch errors
+    #send result from simulator to a check function. If that function does not return null, exit run_model with error message
+    simresult = try(eval(fctcall))
+
     checkres <- check_results(simresult)
     if (!is.null(checkres)) {return(checkres)}
 
     simresult <- simresult$ts
+    if (grepl('_and_',modelsettings$modeltype)) #this means  model is run with another one, relabel variables to indicate discrete
+    {
+      colnames(simresult) = paste0(colnames(simresult),'_dis')
+    }
     colnames(simresult)[1] = 'xvals' #rename time to xvals for consistent plotting
     #reformat data to be in the right format for plotting
     rawdat = as.data.frame(simresult)
-    #using tidyr to reshape
-    #dat = tidyr::gather(rawdat, -xvals, value = "yvals", key = "varnames")
     #using basic reshape function to reformat data
     dat = stats::reshape(rawdat, varying = colnames(rawdat)[-1], v.names = 'yvals', timevar = "varnames", times = colnames(rawdat)[-1], direction = 'long', new.row.names = NULL); dat$id <- NULL
     dat$IDvar = dat$varnames #make variables in case data is combined with stochastic runs. not used for discrete.
@@ -221,7 +261,20 @@ run_model <- function(modelsettings) {
   if (grepl('_usanalysis_',modelsettings$modeltype))
   {
     modelsettings$currentmodel = simfunction
-    simresult = try(eval(generate_fctcall(modelsettings)))
+
+    #create function call, then evaluate it to run model
+    fctcall = generate_fctcall(modelsettings)
+    # this means an error occurred making the call
+    if (!is.call(fctcall))
+    {
+      #return error message generated when trying to build the function call
+      return(fctcall)
+    }
+    #wrap in try command to catch errors
+    #send result from simulator to a check function. If that function does not return null, exit run_model with error message
+    simresult = try(eval(fctcall))
+
+
     checkres <- check_results(simresult)
     if (!is.null(checkres)) {return(checkres)}
 
@@ -231,7 +284,7 @@ run_model <- function(modelsettings) {
     simdat = simresult$dat
 
     #number of columns - each outcome gets a column
-    result[[1]]$ncols = modelsettings$ncols
+    result[[1]]$ncols = modelsettings$nplots
 
     #loop over each outer list element corresponding to a plot and fill it with another list
     #of meta-data and data needed to create each plot
@@ -262,8 +315,12 @@ run_model <- function(modelsettings) {
         if (plotscale == 'y' | plotscale == 'both') { result[[ct]]$yscale = 'log10'}
 
         #the following are for text display for each plot
-        result[[ct]]$maketext = TRUE #if true we want the generate_text function to process data and generate text, if 0 no result processing will occur insinde generate_text
+        result[[ct]]$maketext = TRUE #if true we want the generate_text function to process data and generate text, if 0 no result processing will occur inside generate_text
         result[[ct]]$finaltext = paste("System might not have reached steady state", length(steady) - sum(steady), "times")
+
+        #set y-axis limits based on variable
+        result[[ct]]$ymin = min(result[[ct]]$dat$yvals, na.rm=TRUE)
+        result[[ct]]$ymax = max(result[[ct]]$dat$yvals, na.rm=TRUE)
 
         ct = ct + 1
     } #loop over plots
@@ -278,18 +335,30 @@ run_model <- function(modelsettings) {
   ##################################
   if (grepl('_fit_',modelsettings$modeltype))
   {
+
+
     modelsettings$currentmodel = simfunction
-    simresult = try(eval(generate_fctcall(modelsettings)))
+
+    #create function call, then evaluate it to run model
+    fctcall = generate_fctcall(modelsettings)
+    # this means an error occurred making the call
+    if (!is.call(fctcall))
+    {
+      #return error message generated when trying to build the function call
+      return(fctcall)
+    }
+    #wrap in try command to catch errors
+    #send result from simulator to a check function. If that function does not return null, exit run_model with error message
+    simresult = try(eval(fctcall))
+
     checkres <- check_results(simresult)
     if (!is.null(checkres)) {return(checkres)}
 
 
     colnames(simresult$ts)[1] = 'xvals' #rename time to xvals for consistent plotting
     #reformat data to be in the right format for plotting
-    #each plot/text output is a list entry with a data frame in form xvals, yvals, extra variables for stratifications for each plot
+    #each plot/text output is a list entry with a data frame in form xvals, yvals, extra variables for stratification for each plot
     rawdat = as.data.frame(simresult$ts)
-    #using tidyr to reshape
-    #dat = tidyr::gather(rawdat, -xvals, value = "yvals", key = "varnames")
     #using basic reshape function to reformat data
     dat = stats::reshape(rawdat, varying = colnames(rawdat)[-1], v.names = 'yvals', timevar = "varnames", times = colnames(rawdat)[-1], direction = 'long', new.row.names = NULL); dat$id <- NULL
 
@@ -297,8 +366,6 @@ run_model <- function(modelsettings) {
 
     #next, add data that's being fit to data frame
     fitdata  = simresult$data
-    colnames(fitdata) = c('xvals','yvals')
-    fitdata$varnames = 'Data'
     fitdata$style = 'point'
     datall = rbind(dat,fitdata)
 
@@ -323,13 +390,14 @@ run_model <- function(modelsettings) {
 
     ####################################################
     #different choices for text display for different fit models
-    if (grepl('fit_flu',simfunction))
+    #both DSAIDE and DSAIRM models
+    if (grepl('flu_fit',simfunction) || grepl('basicvirus_fit',simfunction))
     {
       txt1 <- paste('Best fit values for parameters',paste(names(simresult$bestpars), collapse = '/'), ' are ', paste(format(simresult$bestpars,  digits =2, nsmall = 2), collapse = '/' ))
       txt2 <- paste('Final SSR is ', format(simresult$SSR, digits =2, nsmall = 2))
       result[[1]]$finaltext = paste(txt1,txt2, sep = "<br/>")
     }
-    if (grepl('confint',simfunction))
+    if (grepl('confint_fit',simfunction))
     {
       txt1 <- paste('Best fit values for parameters', paste(names(simresult$bestpars), collapse = '/'), ' are ', paste(format(simresult$bestpars,  digits =2, nsmall = 2), collapse = '/' ))
       txt2 <- paste('Lower and upper bounds for parameter', paste(names(simresult$bestpars[1]), collapse = '/'), ' are ', paste(format(simresult$confint[1:2],  digits =2, nsmall = 2), collapse = '/' ))
@@ -337,7 +405,7 @@ run_model <- function(modelsettings) {
       txt4 <- paste('SSR is ', format(simresult$SSR, digits =2, nsmall = 2))
       result[[1]]$finaltext = paste(txt1,txt2,txt3,txt4, sep = "<br/>")
     }
-    if (grepl('fit_noro',simfunction))
+    if (grepl('noro_fit',simfunction) || grepl('fludrug_fit',simfunction) || grepl('modelcomparison_fit',simfunction))
     {
       txt1 <- paste('Best fit values for model', modelsettings$fitmodel, 'parameters',paste(names(simresult$bestpars), collapse = '/'), ' are ', paste(format(simresult$bestpars,  digits =2, nsmall = 2), collapse = '/' ))
       txt2 <- paste('SSR and AICc are ',format(simresult$SSR, digits =2, nsmall = 2),' and ',format(simresult$AICc, digits =2, nsmall = 2))
@@ -356,7 +424,19 @@ run_model <- function(modelsettings) {
   if (grepl('_modelexploration_',modelsettings$modeltype))
   {
     modelsettings$currentmodel = simfunction
-    simresult = try(eval(generate_fctcall(modelsettings)))
+
+    #create function call, then evaluate it to run model
+    fctcall = generate_fctcall(modelsettings)
+    # this means an error occurred making the call
+    if (!is.call(fctcall))
+    {
+      #return error message generated when trying to build the function call
+      return(fctcall)
+    }
+    #wrap in try command to catch errors
+    #send result from simulator to a check function. If that function does not return null, exit run_model with error message
+    simresult = try(eval(fctcall))
+
     checkres <- check_results(simresult)
     if (!is.null(checkres)) {return(checkres)}
 

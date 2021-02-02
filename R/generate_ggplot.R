@@ -29,13 +29,13 @@
 #'    optional: for multiple plots, specify res[[1]]$ncols to define number of columns \cr
 #'
 #' @return A ggplot plot structure for display in a Shiny UI.
-#' @details This function is called by the Shiny server to produce plots returned to the Shiny UI.
-#' Create plots run the simulation with default parameters just call the function:
-#' result <- simulate_basicbacteria()
-#' plot <- generate_ggplot(result)
+#' @details This function can be called to produce plots, i.e. those displayed for each app.
+#' The input needed by this function is produced by either calling the run_model() function (as done when going through the UI)
+#' or manually transforming the output from a simulate_ function into the correct list structure explained below.
 #' @rawNamespace import(ggplot2, except = last_plot)
 #' @importFrom stats reshape
 #' @importFrom gridExtra grid.arrange
+#' @importFrom rlang .data
 #' @author Andreas Handel
 #' @export
 
@@ -44,10 +44,9 @@ generate_ggplot <- function(res)
 
     # change ggplot color palette to color-blind friendly
     # http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
-    # I added 3 more colors at the end to have 12, enough for all simulations
+    # I added more colors at the end to have 12, enough for all simulations
     # the ones I added are likely not color-blind friendly but rarely used in the app
-    #cbfpalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-    cbfpalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#00523B","#D5C711","#0019B2")
+    cbfpalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#00523B","#D5C711","#0019B2","#cc0000")
 
     #nplots contains the number of plots to be produced.
     nplots = length(res) #length of list
@@ -122,40 +121,42 @@ generate_ggplot <- function(res)
 
 
       #if the IDvar variable exists, use it for further stratification, otherwise just stratify on varnames
+	    #the unusual notation for the aes settings is needed for use inside a package
+      #see here: https://ggplot2.tidyverse.org/dev/articles/ggplot2-in-packages.html
       if (is.null(dat$IDvar))
-      {
-        p1 = ggplot2::ggplot(dat, ggplot2::aes(x = xvals) )
-      }
+	    {
+	      p1 = ggplot2::ggplot(dat, ggplot2::aes(x = .data$xvals) )
+	    }
       else
       {
-        p1 = ggplot2::ggplot(dat, ggplot2::aes(x = xvals, group = IDvar) )
+        p1 = ggplot2::ggplot(dat, ggplot2::aes(x = .data$xvals, group = .data$IDvar) )
       }
 
       ###choose between different types of plots
       if (plottype == 'Scatterplot')
       {
-        p2 = p1 + ggplot2::geom_point(data = dat, aes( y = yvals, color = varnames, shape = varnames), size = linesize, na.rm=TRUE)
+        p2 = p1 + ggplot2::geom_point(data = dat, aes( y = .data$yvals, color = factor(.data$varnames, ordered = FALSE), shape = factor(.data$varnames, ordered = FALSE)), size = linesize, na.rm=TRUE)
       }
       if (plottype == 'Boxplot')
       {
-        p2 = p1 + ggplot2::geom_boxplot(data = dat, aes( y = yvals, color = varnames), size = linesize, na.rm=TRUE)
+        p2 = p1 + ggplot2::geom_boxplot(data = dat, aes( y = .data$yvals, color = as.factor(.data$varnames)), size = linesize, na.rm=TRUE)
       }
       if (plottype == 'Lineplot')
       {
-        p2 = p1 + ggplot2::geom_line(data = dat, aes( y = yvals, color = varnames, linetype = varnames), size = linesize, na.rm=TRUE)
+        p2 = p1 + ggplot2::geom_line(data = dat, aes( y = .data$yvals, color = as.factor(.data$varnames), linetype = as.factor(.data$varnames)), size = linesize, na.rm=TRUE)
       }
       if (plottype == 'Mixedplot')
       {
         #a mix of lines and points. for this, the dataframe needs to contain an extra column indicating line or point
-        p1a = p1 + ggplot2::geom_line(data = dplyr::filter(dat,style == 'line'), aes( y = yvals, color = varnames, linetype = varnames), size = linesize)
-        p2 = p1a + ggplot2::geom_point(data = dplyr::filter(dat,style == 'point'), aes( y = yvals, color = varnames, shape = varnames), size = 2.5*linesize)
+        p1a = p1 + ggplot2::geom_line(data = dplyr::filter(dat,style == 'line'), aes( y = .data$yvals, color = as.factor(.data$varnames), linetype = as.factor(.data$varnames)), size = linesize)
+        p2 = p1a + ggplot2::geom_point(data = dplyr::filter(dat,style == 'point'), aes( y = .data$yvals, color = as.factor(.data$varnames), shape = factor(.data$varnames, ordered = FALSE)), size = 2.5*linesize)
       }
 
 
   	 #set x-axis. no numbering/labels on x-axis for boxplots
   	 if (plottype == 'Boxplot')
      {
-          p3 = p2 + ggplot2::scale_x_continuous(trans = xscaletrans, limits=c(xmin,xmax), breaks = NULL, labels = NULL)
+          p3 = p2 + ggplot2::scale_x_continuous(trans = xscaletrans, breaks = NULL, labels = NULL)
           p3 = p3 + ggplot2::labs(x = NULL)
       }
       else
@@ -194,50 +195,39 @@ generate_ggplot <- function(res)
         }
         legendtitle = ifelse(is.null(resnow$legendtitle), "Variables", resnow$legendtitle)
 
-        p5a = p5 + ggplot2::guides(col = ggplot2::guide_legend(nrow=2, byrow=TRUE,title.position = 'left'))
-        #p5a = p5 + ggplot2::guides(fill=ggplot2::guide_legend(title.position="top", nrow=3, byrow=TRUE))
-        p5b = p5a + ggplot2::theme(legend.position = legendlocation) #default is top
-        p5c = p5b + ggplot2::theme(legend.key.width = grid::unit(3, "line")) #line thickness
 
         if (plottype != 'Mixedplot')
         {
           nvars = length(unique(dat$varnames))
+          p5a = p5 + ggplot2::guides(col = ggplot2::guide_legend(nrow=2, byrow=TRUE,title.position = 'left'))
+          p5b = p5a + ggplot2::theme(legend.position = legendlocation) #default is top
+          p5c = p5b + ggplot2::theme(legend.key.width = grid::unit(3, "line")) #line thickness
           p5d = p5c + ggplot2::scale_colour_manual(name = legendtitle, values=plotpalette[1:nvars]) #color for each variable
-          #p5e = p5d + ggplot2::scale_linetype_manual(name = legendtitle, values = c(1:nvars) ) #line type for each variable
-          #p5f = p5e + ggplot2::scale_shape_manual(name = legendtitle, values = 15 + c(1:nvars)) #symbol type for symbols
-          #p5d = p5c + ggplot2::scale_colour_discrete(name = legendtitle) #color for each variable
           p5e = p5d + ggplot2::scale_linetype_discrete(name = legendtitle) #line type for each variable
-          p5f = p5e + ggplot2::scale_shape_discrete(name = legendtitle) #symbol type for symbols
+          pfinal = p5e + ggplot2::scale_shape_discrete(name = legendtitle) #symbol type for symbols
         }
         if (plottype == 'Mixedplot')
         {
-          #some trickery to set legend right for combined line and symbol
-          #adapted from here:
-          #https://stackoverflow.com/questions/37140266/how-to-merge-color-line-style-and-shape-legends-in-ggplot
+          #trying to get legend right for combined line and symbol plots
+          #not fully working yet
+          #for data/symbols, legend still shows both lines and symbols, no matter what the plot is
           # Compute the number of types and methods
           npoints = length(unique(dplyr::filter(dat,style == 'point')$varnames))
           nlines = length(unique(dplyr::filter(dat,style == 'line')$varnames))
-          #p5f=p5c
+          p5a = p5 + ggplot2::guides(col = ggplot2::guide_legend(nrow=2, byrow=TRUE,title.position = 'left'))
+          p5b = p5a + ggplot2::theme(legend.position = legendlocation) #default is top
+          p5c = p5b + ggplot2::theme(legend.key.width = grid::unit(3, "line")) #line thickness
           p5d = p5c + ggplot2::scale_colour_manual(name = legendtitle, values=plotpalette[1:(nlines+npoints)]) #color for each variable
-          p5e = p5d + ggplot2::scale_linetype_discrete(name = legendtitle) #line type for each variable
-          p5f = p5e + ggplot2::scale_shape_discrete(name = legendtitle) #symbol type for symbols
-          #p5e = p5d + ggplot2::scale_linetype_manual(name = legendtitle, values = c(1:nlines, rep(NA,npoints)) )
-          #p5f = p5e + ggplot2::scale_shape_manual(name = legendtitle, values = c(rep(NA,nlines), 15 + c(1:npoints)) )
+          p5e = p5d + ggplot2::scale_linetype_discrete(name = legendtitle, guide = FALSE) #symbol type for symbols; here is some trickery to make the legend look combined (turn off legend title/name)
+          pfinal = p5e + ggplot2::scale_shape_discrete(name = "", guide = FALSE) #symbol type for symbols
         }
-        p6 = p5f
-
       } #end doing legend
       else
       {
-          p6 = p5 + ggplot2::theme(legend.position="none") + ggplot2::scale_colour_manual(values=plotpalette)
+        pfinal = p5 + ggplot2::theme(legend.position="none") + ggplot2::scale_colour_manual(values=plotpalette)
       }
 
-      #modify overall theme
-      pfinal = p6
-
       allplots[[n]] = pfinal
-
-
 
     } #end loop over individual plots
 
@@ -253,7 +243,7 @@ generate_ggplot <- function(res)
       #number of columns needs to be stored in 1st list element
       #browser()
       resultplot <- gridExtra::grid.arrange(grobs = allplots, ncol = res[[1]]$ncols)
-      #resultplot <- gridExtra::arrangeGrob(grobs = allplots, ncol = res[[1]]$ncol)
+      #resultplot <- gridExtra::arrangeGrob(grobs = allplots, ncol = res[[1]]$ncols)
       #cowplot::plot_grid(plotlist = allplots, ncol = res[[1]]$ncol)
 
     }

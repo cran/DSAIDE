@@ -8,21 +8,42 @@ output:
     fig_caption: true
     mathjax: default 
     keep_md: false
-bibliography: references.bib
+bibliography: dsaide_references.bib
 ---
 
-
-```{r, echo = FALSE}
-#this code loads the settings file for the current app so we can automatically 
-#list the functions in the further information section
+```{r, include = FALSE}
+#*************************************
+#general setup to define package and get path locations
+#all paths are inside the package and retrieved with system.file
+packagename = "DSAIDE"
+helperdir = "helperfunctions"
+mbmodeldir = "mbmodels"
+figuredir = "media"
+appdocdir = "appinformation" 
+#*************************************
+#Note: for this to process/knit, several helper functions need to be available (sourced) first
+#those are in the inst/helperfunctions folder
+#Note: in general, the "processing-script.R" in the docsfordevelopers should be used to produce the html docs
+#manual knitting of each doc only during development/testing
+#*************************************
+files_to_source = list.files(system.file(helperdir,package = packagename),full.names=TRUE)
+sapply(files_to_source, source) #sourcing needs to happen inside each Rmd file since knitr starts a new environment
+#load the settings file for the current app 
+#so we can automatically include figure, list the functions in the further information section
+#and use other information specific to the current app for the task table generation
 currentrmdfile = knitr::current_input() 
-currentappinfo = gsub("_documentation.Rmd" ,"_settings.R",currentrmdfile)
-source(currentappinfo)
+appsettings = get_settings(currentrmdfile,appdocdir,packagename)
 ```
 
 
 ## Overview {#shinytab1}
 This app allows you to explore a model which allows for both direct transmission and transmission through an environmental stage. Read about the model in the "Model" tab. Then do the tasks described in the "What to do" tab.
+
+### Learning Objectives
+* Know the hallmarks of indirect, environmental transmission
+* Contrast the difference between direct and environmental transmission.
+* Assess how indirect transmission processes affect ID dynamics.
+* Understand what environmental transmission implies for control strategies
 
 
 ## The Model {#shinytab2}
@@ -36,35 +57,39 @@ This model has the following compartments:
 * **S** - uninfected and susceptible individuals 
 * **I** - individuals who are infected and infectious.
 * **R** - recovered/removed individuals.
-* **E** - pathogen in the environment.
+* **P** - pathogen in the environment.
 
 
 The processes being modeled are:
 
-* Susceptible individuals can become infected by either direct contact with infected hosts at rate _b~d~_ or through contact with a pathogen in the environment at rate _b~e~_.
+* Susceptible individuals can become infected by either direct contact with infected hosts at rate _b~I~_ or through contact with a pathogen in the environment at rate _b~P~_.
 * Infected hosts recover after some time (specified by the rate _g_). 
-* New susceptibles enter (are born) at a rate _b_. From each compartment, hosts "leave" after some time (i.e. they die) at rate _n_. The inverse of this rate is the average lifespan of a host. 
-* Infected hosts shed pathogen into the environment at rate _p_.
+* New susceptibles enter (are born) at a rate _n_. From each compartment, hosts "leave" after some time (i.e. they die) at rate _m_. The inverse of this rate is the average lifespan of a host. 
+* Infected hosts shed pathogen into the environment at rate _q_.
 * Pathogen in the environment decays at rate _c_.
 
 
 ### Model Implementation
-The flow diagram and the set of ordinary differential equations (ODE) which are used to implement this model are as follows:
+The flow diagram for this model is shown in this figure:
 
-
-```{r BIdiagram,  fig.cap='Flow diagram for the model with environmental transmission.',  echo=FALSE}
-knitr::include_graphics("../media/environmentaltransmissionmodel.png")
+```{r modeldiagram,  fig.cap='Model Diagram',  echo=FALSE, out.width = "70%"}
+knitr::include_graphics(here::here('inst/media',appsettings$modelfigname))
 ```
 
+The set of ordinary differential equations (ODE) for this model are:
 
-$$\dot S =b - b_d S I - b_e S E - nS$$ 
-$$\dot I = b_d S I + b_e S E - g I -nI$$ 
-$$\dot R = g I - nR$$
-$$\dot E = p I - cE$$
+$$
+\begin{aligned}
+\dot S & = n - b_{I}IS -b_PPS - mS\\
+\dot I & = b_{I}IS + b_PPS -gI - mI\\
+\dot R & = gI - mR \\
+\dot P & = qI - c P 
+\end{aligned}
+$$
 
 
 ### A comment on terminology  
-Often the letter _E_ is used for the _exposed_ stage, which would then be called a SEIR model. I'm using the letter _E_ here to denote environmental stage of the pathogen. While this could also be abbreviated to SIER (or maybe SIRE), if you see the terminology _SEIR model_ somewhere, the authors usually refer to a model with the additional exposed stage, not an environmental stage. There are no naming rules for either model compartments or parameters, so you will see all kinds of letters used. They should all be explicitly specified by the authors such that there is no ambiguity.
+It's tempting to use the letter _E_ for the environmental stage. However, the letter _E_ is generally used for the _exposed_ stage (what I generally call pre-symptomatic), which is then called a SEIR model. Thus, I'm using the letter _P_ here. You might see models that use _E_ for exposed or environmental stages. In general, there are no naming rules for either model compartments or parameters, so you will see all kinds of letters used. They should all be explicitly specified by the authors such that there is no ambiguity.
 
 
 ## What to do {#shinytab3}
@@ -72,44 +97,169 @@ Often the letter _E_ is used for the _exposed_ stage, which would then be called
 **The tasks below are described in a way that assumes that everything is in units of MONTHS (rate parameters, therefore, have units of inverse months). If any quantity is not given in those units, you need to convert it first.**
 
 
-### Task 1: 
-* Set the model parameters such that it corresponds to the following setting: 
-    * 1000 initially susceptible individuals, _S~0~_, 1 initially infected host, _I~0~_, no pathogen in the environment (_E~0~_ = 0) , simulation duration, _tmax_, approximately 5 years.
-    * We'll first look at direct transmission. Set transmission rate of _b~D~ = 0.001_, environmental transmission _b~E~ = 0_.
-    * Set environmental pathogen shedding, _p_, and clearance, _c_, to 0. 
-    * Assume that the duration of the infectious period is about 2 months long. 
-    * Turn off births, _m_, and deaths, _n_, for now.
-* Run the simulation. You should get the usual direct transmission dynamics and a single outbreak.
-* Record the number and fraction of susceptible/infected/recovered remaining at the end of the outbreak. You should be left with around 202 susceptibles at the end of the simulation. Remember that in a model like this, where the only flow from the susceptible class is outflow through becoming infected, everyone who is not in the susceptible compartment at the end has been infected. Thus the total number of infected during the outbreak is the different between susceptibles at the beginning and at the end.    
+```{r, echo=FALSE, eval=TRUE}
+#this is the running counter for the records which starts at 1 
+rc=1
 
-### Task 2: 
-* Now try various values for the rate of shedding into the environment, _p_, and environmental clearance _c_. Leave everything else unchanged.
-* As those parameters move away from 0, what do you expect to see?
-* Think about your expectations, run the simulation and compare your expectations with the results.
-* Anything surprising happening? Do you understand why you see what you see?
+#empty object, will hold all outcomes
+alloutcomes = NULL
+
+# Task 1
+tid = 1
+tasktext = "Set the model parameters to the following values. 1000 initially susceptible individuals, 1 initially infected host, no pathogen in the environment, simulation duration 1 year. We'll first look at direct transmission. Set transmission rate of _b~I~ = 0.004_, environmental transmission _b~P~ = 0_. Set environmental pathogen shedding and clearance rates to 0. Assume that the duration of the infectious period is 15 days long (and a month has 30 days). Turn off births and deaths for now. Run the simulation. You should get the usual direct transmission dynamics and a single outbreak. You should be left with around 203 susceptibles at the end of the simulation. Remember that in a model like this, where the only flow from the susceptible class is outflow through becoming infected, everyone who is not in the susceptible compartment at the end has been infected. Thus the total number of infected during the outbreak is the different between susceptibles at the beginning and at the end. Use one of the equations you have learned about in the reproductive number apps to compute _R~0~_."
+nrec = 1 # number of items to record
+out_records = c("Basic reproductive number")
+out_types = c("Rounded_Integer")
+out_notes = c("Report the rounded integer")
+outcomes = data.frame( TaskID = rep(tid,nrec),
+                       TaskText = rep(tasktext,nrec),
+                      RecordID = paste0('T',tid,'R',(1:nrec)),
+                      Record = out_records, 
+                      Type = out_types, 
+                      Note = out_notes)
+alloutcomes = rbind(alloutcomes,outcomes)
+rc = rc + nrec #increment record counter by number of outcomes to record for this task 
+
+##################
+# Task 2
+##################
+tid = 2
+tasktext = "Now try various values for the rate of shedding into the environment, _q_, and environmental clearance _c_. Leave everything else unchanged. As those parameters move away from 0, what do you expect to see? Run the simulation and compare your expectations with the results. Anything surprising happening? Do you understand why you see what you see?"
+nrec = 1 # number of items to record
+out_records = c("Susceptible left at end of simulation")
+out_types = c("Rounded_Integer")
+out_notes = c("Report the rounded integer")
+outcomes = data.frame( TaskID = rep(tid,nrec),
+                       TaskText = rep(tasktext,nrec),
+                      RecordID = paste0('T',tid,'R',(1:nrec)),
+                      Record = out_records, 
+                      Type = out_types, 
+                      Note = out_notes)
+alloutcomes = rbind(alloutcomes,outcomes)
+rc = rc + nrec #increment record counter by number of outcomes to record for this task 
 
 
-### Task 3: 
-* Now set _p = 10_ and _c = 10_ . Turn off direct transmission. Run to make sure you don't get an outbreak.
-* Turn on environmental transmission, set it to _b~E~ = 0.001_. Leave everything else unchanged.
-* What do you expect to see? Run simulations and compare with the direct transmission results.
+##################
+# Task 3
+##################
+tid = 3
+tasktext = "Now set _q = 100_ and _c = 100_ . Turn off (set to 0) direct transmission. Run to make sure you don't get an outbreak. Now turn on environmental transmission, set it to _b~P~ = 0.004_, the same value you had for direct transmission above. Leave everything else unchanged. Run the simulation. Compare results with those from task 1. You might or might not find the result surprising. Take a close look at the curves for _I_ and _P_."
 
-### Task 4: 
-* Now also turn on direct transmission by setting _b~D~ = b~E~ = 0.001_. Leave everything else unchanged.
-* What do you expect to see? Run simulations and see how your expectations hold up.
+# Record for task 3
+nrec = 1 # number of items to record
+out_records = c("Susceptible left at end of simulation")
+out_types = c("Rounded_Integer")
+out_notes = c("Report the rounded integer")
+outcomes = data.frame( TaskID = rep(tid,nrec),
+                       TaskText = rep(tasktext,nrec),
+                      RecordID = paste0('T',tid,'R',(1:nrec)),
+                      Record = out_records, 
+                      Type = out_types, 
+                      Note = out_notes)
+alloutcomes = rbind(alloutcomes,outcomes)
+rc = rc + nrec #increment record counter by number of outcomes to record for this task 
 
-### Task 5: 
-* Now set the initial number of infected to 0 and initial pathogen in the environment to 1. Leave everything else unchanged.
-* What do you expect to see? Run simulations and see how your expectations hold up.
 
-### Task 6: 
-* Try different combinations of direct and environmental transmission only and having only infected hosts or only pathogen in the environment at the start. 
-* What do you expect to see? Run simulations and see how your expectations hold up.
+##################
+# Task 4
+##################
+tid = 4
+tasktext = "In the previous task, removal of pathogens in the environment happened at a rate that was so fast that it essentially tracked whatever was going on in the infected population. In such a case, one can make with is called a quasi-steady state approximation for the fast variable and assume that it's change only depends on the change of the variable it tracks. There is some formal way of doing it, a quick and often (but not always) correct way is to set the right side of the equation of the fast variable to 0. Here, that is the environmental variable, so the equation becomes _0=qI-cP_ and from that _P=qI/c_. Since we had _q_=_c_ in the previous task, I and P tracked each other (approximately). That is generally not the case. Explore a more general scenario by setting _q = 100_ and _c = 50_. Have direct transmission off and environmental transmission as in the previous task. Since decay is now slower, pathogen in the environment builds up to higher levels and produces an overall larger outbreak. Look at the maximum values for _P_ and _I_. Compute the ratio and compare that with the equation. Keep exploring how things change for different values of _q_ and _c_."
+nrec = 1 # number of items to record
+out_records = c("The ratio of the maximum values for P and I, i.e. maximum P/maximum I")
+out_types = c("Rounded_Integer")
+out_notes = c("Report the rounded integer")
+outcomes = data.frame( TaskID = rep(tid,nrec),
+                       TaskText = rep(tasktext,nrec),
+                      RecordID = paste0('T',tid,'R',(1:nrec)),
+                      Record = out_records, 
+                      Type = out_types, 
+                      Note = out_notes)
+alloutcomes = rbind(alloutcomes,outcomes)
+rc = rc + nrec #increment record counter by number of outcomes to record for this task 
 
-### Task 7: 
-* Keep exploring by trying different parameters and transmission settings and see how they influence results.
-* You can also turn on births/deaths and see what you get.
-* As you continue your exploration, think about potential real infectious diseases that might be approximated by either one of the transmission types, and what settings for other model parameters would be for those ID.
+
+
+##################
+# Task 5
+##################
+tid = 5
+tasktext = "It is possible to compute the reproductive number for enviromental transmission. Recall that it is defined as the average number of infectious hosts (of 1 type) that are infected by one infectious host of the same type. Here, we need to go through the environment. First, we need to compute _how many units of environmental pathogen_ an individual host produces before they recover, and then how many hosts are infected per unit of environmental pathogen. This can be done as follows: One infected host sheds pathogen for a duration of _1/g_ at a rate _q_, so the total environmental pathogen produced by that host is _q/g_. This amount of pathogen is around for an average time of _1/c_, during which time it infects new hosts at rate _b~P~_ for a total production of new infected hosts _b~P~_/_c_. To get the number of new infectious hosts produced by one infectious host, one needs to multiply these two quantities. Then, to get the basic reproductive number, one also needs to multiply by the inital number of susceptible to get _R~0~=qb~P~S/(gc))_. Use the values from the last task (_q=100_, _c=50_) to compute _R~0~_ for this simulation. Then use the final-size equation to compute the fraction of susceptible you expect to get for this _R~0~_ value and confirm with the simulation."
+nrec = 2 # number of items to record
+out_records = c("Value of R0", 
+                "Susceptible left at end of simulation for q=100, c=50")
+out_types = c("Rounded_Integer")
+out_notes = c("Report the rounded integer")
+outcomes = data.frame( TaskID = rep(tid,nrec),
+                       TaskText = rep(tasktext,nrec),
+                      RecordID = paste0('T',tid,'R',(1:nrec)),
+                      Record = out_records, 
+                      Type = out_types, 
+                      Note = out_notes)
+alloutcomes = rbind(alloutcomes,outcomes)
+rc = rc + nrec #increment record counter by number of outcomes to record for this task 
+
+##################
+# Task 6
+##################
+tid = 6
+
+tasktext = "Use the settings from the previous task and alternate between starting with some non-zero number of infected individuals and no pathogen in the environment, or no infected individuals and some pathogen in the environment. Convince yourself that you always get an outbreak, and if it's not clear why, look at the flow diagram for the model to understand which processes lead to more or less the same outbreak if you start with either non-zero infected individuals or non-zero levels of environmental contamination. Then also turn on direct transmission, such that you now have transmission through both pathways (environmental and direct) and explore how different values affect the outbreak."
+nrec = 1 # number of items to record
+out_records = c("Nothing")
+out_types = rep("None",nrec)
+out_notes = c("")
+outcomes = data.frame( TaskID = rep(tid,nrec),
+                       TaskText = rep(tasktext,nrec),
+                      RecordID = paste0('T',tid,'R',(1:nrec)),
+                      Record = out_records, 
+                      Type = out_types, 
+                      Note = out_notes)
+alloutcomes = rbind(alloutcomes,outcomes)
+rc = rc + nrec #increment record counter by number of outcomes to record for this task 
+
+
+##################
+# Task 7
+##################
+tid = 7
+
+tasktext = "Keep exploring by trying different parameters and transmission settings and see how they influence results. You can also turn on births/deaths and see what you get. As you continue your exploration, think about potential real infectious diseases that might be approximated by either one of the transmission types. You could try to find parameter values in the literature that could approximate that disease and run simulations mimicking a specific disease and setting."
+nrec = 1 # number of items to record
+out_records = c("Nothing")
+out_types = rep("None",nrec)
+out_notes = c("")
+outcomes = data.frame( TaskID = rep(tid,nrec),
+                       TaskText = rep(tasktext,nrec),
+                      RecordID = paste0('T',tid,'R',(1:nrec)),
+                      Record = out_records, 
+                      Type = out_types, 
+                      Note = out_notes)
+alloutcomes = rbind(alloutcomes,outcomes)
+rc = rc + nrec #increment record counter by number of outcomes to record for this task 
+```
+
+
+
+```{r echo=FALSE}
+##################
+# All Tasks done, add app specific columns to data frame and save all to file 
+##################
+#save the fully filled task table to a tsv file
+alloutcomes$QuizID = paste0('dsaide_',appsettings$appid)
+alloutcomes$AppTitle = appsettings$apptitle
+alloutcomes$AppID = appsettings$appid
+alloutcomes$Answer = "" #add empty answer column, just for consistency. Should probably be removed here.
+write.table(alloutcomes, paste0(appsettings$appid,"_tasktable.tsv"), append = FALSE, sep = "\t", row.names = F, col.names = TRUE)
+```
+
+
+```{r, echo=FALSE, results='asis'}
+##################
+# write all the task text and outcome into the html during conversion
+##################
+write_tasktext_new(alloutcomes)
+```
 
 
 ## Further Information {#shinytab4}

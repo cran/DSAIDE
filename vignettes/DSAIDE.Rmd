@@ -34,25 +34,26 @@ The audience for this package consists individuals interested in infectious dise
 
 While the package was written as a component of a course on infectious disease epidemiology/modeling, the documentation for each app tries to be fairly complete and self-contained. This should allow you to get some understanding of the topics and models without requiring additional information. However, the information provided inside each app is not sufficient to get a very thorough understanding. If you use this package on your own without taking a class on the topc, it might be possible to learn the material covered by the apps in depth by working through some of the references provided for each app or general infectious disease modeling textbooks (e.g. [@keeling08; @vynnycky10; @bjoernstad18]). 
 
+## Pre-requisites
+Since `DSAIDE` is an `R` package, you need to have [R](https://www.r-project.org/) installed. I also highly recommend [RStudio](https://rstudio.com/products/rstudio/download/), though it's not required. If you are not familiar with `R` you can find [a brief introduction here](https://andreashandel.github.io/IDEMAcourse/R_and_RStudio.html), which also provides a reference to detailed install instructions.
+
 
 ## Installation
-
-I assume you have [R](https://www.r-project.org/) installed. I also highly recommend [RStudio](https://www.rstudio.com/products/rstudio/download/), though it's not required. After having opened R/Rstudio, you can install the package from CRAN by typing the following into the R console (the bottom left window if you are using RStudio):
-
+After having installed and opened R/Rstudio, you can install the package from CRAN by typing the following into the R console (the bottom left window if you are using RStudio):
 
 ```r
 install.packages('DSAIDE')
 ```
 
 
-Alternatively, you can install the latest development version (with usually both more features and more bugs) from github, using the `devtools` package. The following commands, typed into the `R` console, will get you up and running:
+Alternatively, you can install the latest development version (with usually both more features and more bugs) from github, using the `remotes` package. The following commands, typed into the `R` console, will get you up and running:
 
 ```r
-install.packages('devtools') #if not already installed
-devtools::install_github('ahgroup/DSAIDE')
+install.packages('remotes') #if not already installed
+remotes::install_github('ahgroup/DSAIDE')
 ```
 
-The package depends on other packages, which will also be installed as needed. Package installation is a one-time process, unless you update or reinstall R itself, or want to install a newer version of DSAIDE. 
+The package depends on other packages, which will also be installed as needed. Package installation is a one-time process, unless you update or re-install R itself, or want to install a newer version of `DSAIDE`. 
 
 
 
@@ -84,7 +85,7 @@ dsaidemenu()
 ```
 
 
-If successful, you should see a graphical menu open in your browser that looks like this:
+If successful, you should see a graphical menu open in your browser that looks similar to this (looks might differ a bit depending on the version of `DSAIDE` you are running):
 
 ```{r dsaidemenu,  fig.cap='Main menu of the DSAIDE package.', echo=FALSE}
 knitr::include_graphics("mainmenu.png")
@@ -124,23 +125,23 @@ Once you are comfortable interacting with the models and have a good understandi
 
 To facilitate direct interaction and modification of the underlying simulations, each app is structured in such a way that the underlying model/simulation is a stand-alone function. For some apps, there are multiple underlying functions involved. You can call any of these functions directly, without going through the graphical interface. The _Further Information_ tab inside each app provides the name of the corresponding underlying function(s) and how to call their help files to get information on their use.
 
-Consider as example the first app, called "ID Dynamics Intro". The simulator function for this model is called `simulate_sir_ode.R`. After loading the package (if not already loaded) with 
+Consider as example the first app, called "ID Dynamics Intro". The simulator function for this model is called `simulate_SIR_model_ode.R`. After loading the package (if not already loaded) with 
 
-```{r eval=TRUE, echo=FALSE}
+```{r eval=TRUE, echo=TRUE}
 library('DSAIDE') 
 ```
 
 you can learn about the inputs and outputs of the model/function by looking at its documentation 
 
 ```{r eval=FALSE, echo=TRUE}
-help('simulate_sir_ode')
+help('simulate_SIR_model_ode')
 ```
 
 The help file explains that you can run the simulation by specifying initial number of susceptibles and infected, the duration for which the simulation should be run, and the infection and recovery parameters. 
 Each parameter has some default, listed in the help file. Running a simulation model without any specifications runs it with the defaults:
 
 ```{r, eval=TRUE, echo=TRUE}
-result <- simulate_sir_ode()
+result <- simulate_SIR_model_ode()
 ```
 
 Calling the simulation function execuctes the underlying dynamical model (here a simple 3 compartment ODE model, as described in the "Model" section of the app). Most simulation functions produce and return time-series for the dynamics of each of the variables that are tracked as a list. You can then take the results returned from the simulation function and further process them. For instance you could plot the time-series for susceptible as function of time:
@@ -153,7 +154,7 @@ plot(result$ts[ , "time"],result$ts[ , "S"],xlab='Time',ylab='Number Susceptible
 You can overwrite the default settings by providing your own values for specific parameters, as shown in this example:
 
 ```{r, eval=TRUE, echo=TRUE}
-result <- simulate_sir_ode(S = 2000, b = 0.001, g = 0.5, tfinal = 200)
+result <- simulate_SIR_model_ode(S = 2000, b = 0.001, g = 0.5, tfinal = 200)
 plot(result$ts[ , "time"],result$ts[ , "S"],xlab='Time',ylab='Number Susceptible',type='l')
 ```
 
@@ -171,7 +172,7 @@ peak = rep(0,length(gvec)) #this will record the peak values for each g
 for (n in 1:length(gvec))
 {
   #call the simulator function with different values of g each time
-  result <- simulate_sir_ode(S = 500, b = 1/2500, g = gvec[n],  tfinal = 200)
+  result <- simulate_SIR_model_ode(S = 500, b = 1/2500, g = gvec[n],  tfinal = 200)
   peak[n] <- max(result$ts[,"I"]) #record max number of infected for each value of g
 }
 #plot final result
@@ -196,7 +197,7 @@ We will need to modify the following lines of code:
 
 old:
 ```{r eval=FALSE, echo=TRUE}
-simulate_sir_ode <- function(S = 1000, I = 1, R = 0, b = 0.002, g = 1, tstart = 0, tfinal = 100, dt = 0.1 ) 
+simulate_SIR_model_ode <- function(S = 1000, I = 1, R = 0, b = 0.002, g = 1, tstart = 0, tfinal = 100, dt = 0.1) 
 ```
 
 new:
@@ -206,27 +207,27 @@ mysimulator <- function( S = 1000, I = 1, R = 0, b = 0.002, g = 1, w = 0, tstart
 
 old:
 ```{r eval=FALSE, echo=TRUE}
-pars = c(b = b, g = g)
+parvec_mb = c(b = b, g = g) 
 ```
 
 new:
 ```{r eval=FALSE, echo=TRUE, color='red'}
-pars = c(b = b, g = g, w = w)
+parvec_mb = c(b = b, g = g, w = w)
 ```
 
 
 old (ignoring comments present in the code):
 ```{r eval=FALSE, echo=TRUE}
-dS = -b*S*I
-dI = b*S*I -g*I
-dR = g*I
+dS_mb = -b*S*I
+dI_mb = b*S*I -g*I
+dR_mb = g*I
 ```
 
 new:
 ```{r eval=FALSE, echo=TRUE, color='red'}
-dS = -b*S*I +w*R
-dI = b*S*I -g*I
-dR = g*I -w*R
+dS_mb = -b*S*I +w*R
+dI_mb = b*S*I -g*I
+dR_mb = g*I -w*R
 ```
 
 Note that if we wanted to share this function with others, we would need to also update the function documentation at the start of the file. For personal use of the function, this is a good idea but not required.
@@ -255,7 +256,8 @@ The package is on GitHub and you can use the usual GitHub process to file bug re
 The package is built in a way that makes it (hopefully) easy for others to contribute new simulations/apps. To that end, the package contains [this Markdown file](https://github.com/ahgroup/DSAIDE/blob/master/inst/docsfordevelopers/documentation.md) which provides further information on the details of the package structure. If you plan to develop new apps, or make other substantial contributions, it's best to get in touch with me first via email or GitHub.
 
 ## Further information
-* [I published a paper describing the package and how to use it](https://doi.org/10.1371/journal.pcbi.1005642). The package structure has changed since the paper was published, but it still describes the overall idea and context well, if you are interested in that. * A 'companion' package to this one, called Dynamical Systems Approaches for Immune Respone Modeling (DSAIRM), focuses on models for analyzing with-host infection dynamics. It has the same structure as DSAIDE. [See the DSAIRM site for more information.](https://ahgroup.github.io/DSAIRM)
+* [I published a paper describing the package and how to use it](https://doi.org/10.1371/journal.pcbi.1005642). The package structure has changed since the paper was published, but it still describes the overall idea and context well, if you are interested in that. 
+* A 'companion' package to this one, called Dynamical Systems Approaches for Immune Respone Modeling (DSAIRM), focuses on models for analyzing with-host infection dynamics. It has the same structure as DSAIDE. [See the DSAIRM site for more information.](https://ahgroup.github.io/DSAIRM/)
 * I have solutions (as R Markdown files) to most of the 'What to do' tasks for the different apps. If you are an instructor using this package as part of a class, email me if you are interested in having access to these solutions.
 
 ## Contributors

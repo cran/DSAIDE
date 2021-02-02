@@ -5,13 +5,13 @@
 \title{Simulation of a compartmental infectious disease transmission model illustrating different types of direct transmission}
 \usage{
 simulate_directtransmission_ode(
-  S = 1000,
+  S = 999,
   I = 1,
-  bd = 0.01,
+  bd = 0.005,
   bf = 0,
-  A = 1,
-  m = 0,
+  A = 2,
   n = 0,
+  m = 0,
   g = 0.1,
   w = 0,
   scenario = 1,
@@ -29,9 +29,9 @@ simulate_directtransmission_ode(
 
 \item{A}{: the size of the area in which the hosts are assumed to reside/interact : numeric}
 
-\item{m}{: the rate of births : numeric}
+\item{n}{: the rate of births : numeric}
 
-\item{n}{: the rate of natural deaths : numeric}
+\item{m}{: the rate of natural deaths : numeric}
 
 \item{g}{: the rate at which infected hosts recover : numeric}
 

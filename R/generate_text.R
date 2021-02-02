@@ -16,6 +16,8 @@
 #' @details This function is called by the Shiny server to produce output returned to the Shiny UI.
 #' @author Andreas Handel
 #' @importFrom stats median reshape
+#' @importFrom rlang .data
+#' @author Andreas Handel
 #' @export
 
 generate_text <- function(res)
@@ -63,8 +65,6 @@ generate_text <- function(res)
       }
       else
       {
-        #using tidyr to reshape
-        #dat = tidyr::gather(rawdat, -xvals, value = "yvals", key = "varnames")
         #using basic reshape function to reformat data
         dat = stats::reshape(rawdat, varying = colnames(rawdat)[-1], v.names = 'yvals', timevar = "varnames", times = colnames(rawdat)[-1], direction = 'long', new.row.names = NULL); dat$id <- NULL
       }
@@ -91,7 +91,7 @@ generate_text <- function(res)
         {
           #data for a given variable
           currentvar = allvarnames[[nn]]
-          vardat = dplyr::filter(dat, varnames == currentvar)
+          vardat = dplyr::filter(dat, .data$varnames == currentvar)
           #for lineplots, we show the min/max/final for each variable
           if (plottype == 'Lineplot')
           {
