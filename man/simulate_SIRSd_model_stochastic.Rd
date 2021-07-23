@@ -13,9 +13,7 @@ simulate_SIRSd_model_stochastic(
   w = 1,
   n = 0,
   m = 0,
-  tstart = 0,
   tfinal = 100,
-  dt = 0.1,
   rngseed = 123
 )
 }
@@ -36,11 +34,7 @@ simulate_SIRSd_model_stochastic(
 
 \item{m}{: death rate : numeric}
 
-\item{tstart}{: Start time of simulation : numeric}
-
 \item{tfinal}{: Final time of simulation : numeric}
-
-\item{dt}{: Time step : numeric}
 
 \item{rngseed}{: set random number seed for reproducibility : numeric}
 }
@@ -76,7 +70,7 @@ The following R packages need to be loaded for the function to work: adpativetau
 }
 
 \section{Code creation date}{
- 2021-02-16
+ 2021-07-19
 }
 
 \examples{

@@ -360,6 +360,7 @@ server <- function(input, output, session)
 
 ui <- fluidPage(
   tags$head(includeHTML(("google-analytics.html"))), #this is only needed for Google analytics when deployed as app to the UGA server. Should not affect R package use.
+  tags$head(tags$script('window.onbeforeunload = function() { return "Please use the button on the webpage"; };')), #warning message if user hits browser back button
   includeCSS("packagestyle.css"), #use custom styling
   tags$style(HTML("
         input[type=number] {
@@ -438,7 +439,7 @@ ui <- fluidPage(
                         make_button(at,"hostheterogeneity"),
                         make_button(at,"multipathogen"),
                         #make_button(at,"parasitemodel"),
-                        #make_button(at,"idsurveillance"),
+                        make_button(at,"idsurveillance"),
                         #make_button(at,"maternalimmunity"),
                         class = "mainmenurow"
                       ), #close fluidRow structure for input

@@ -19,9 +19,7 @@ simulate_Drug_Resistance_Evolution_stochastic(
   f = 0,
   cu = 0,
   ct = 0,
-  tstart = 0,
   tfinal = 100,
-  dt = 0.1,
   rngseed = 123
 )
 }
@@ -54,11 +52,7 @@ simulate_Drug_Resistance_Evolution_stochastic(
 
 \item{ct}{: resistance emergence treated : numeric}
 
-\item{tstart}{: Start time of simulation : numeric}
-
 \item{tfinal}{: Final time of simulation : numeric}
-
-\item{dt}{: Time step : numeric}
 
 \item{rngseed}{: set random number seed for reproducibility : numeric}
 }
@@ -94,7 +88,7 @@ The following R packages need to be loaded for the function to work: adpativetau
 }
 
 \section{Code creation date}{
- 2021-02-16
+ 2021-07-19
 }
 
 \examples{
